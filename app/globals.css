@@ -254,9 +254,9 @@ a {
 .hero {
   position: relative;
   width: 100%;
-  margin: 0;
+  margin: -28px 0 0;
   min-height: min(820px, calc(100svh - 76px));
-  padding: clamp(80px, 8vw, 120px) clamp(42px, 7vw, 92px) clamp(300px, 31vw, 410px);
+  padding: calc(clamp(80px, 8vw, 120px) + 28px) clamp(42px, 7vw, 92px) clamp(300px, 31vw, 410px);
   overflow: hidden;
   display: flex;
   align-items: flex-start;
@@ -476,7 +476,8 @@ a {
 
   .hero {
     min-height: 780px;
-    padding: 68px 24px 360px;
+    margin-top: -26px;
+    padding: 94px 24px 360px;
     border-radius: 0 0 34px 34px;
     text-align: center;
   }
