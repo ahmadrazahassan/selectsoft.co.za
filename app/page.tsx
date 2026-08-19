@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Check, ExternalLink } from "lucide-react";
 import { CategoryRow, GuideCard, ReviewCard } from "./components/editorial";
 import { CompareBuilder } from "./components/compare-builder";
@@ -54,6 +55,15 @@ export default async function Home() {
           </div>
 
           <div className="heroVisual" aria-label="A clear way to assess business software">
+            <Image
+              className="heroButterfly"
+              src="/butterfly-mark.png"
+              alt=""
+              width={360}
+              height={360}
+              priority
+              aria-hidden="true"
+            />
             <div className="visualTopline">
               <span>Selection notes</span>
               <span>South Africa</span>

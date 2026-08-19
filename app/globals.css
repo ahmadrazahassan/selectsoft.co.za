@@ -74,11 +74,19 @@ a {
   top: 0;
   padding-inline: 28px;
   background: transparent;
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
+  will-change: transform;
+}
+
+.siteHeaderHidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(calc(-100% - 24px));
 }
 
 .headerInner {
   width: 100%;
-  max-width: none;
+  max-width: 1680px;
   min-height: 92px;
   padding-inline: 42px;
   display: grid;
@@ -89,6 +97,7 @@ a {
   color: var(--paper);
   border-radius: 0 0 38px 38px;
   box-shadow: 0 18px 40px rgba(17, 18, 22, 0.12);
+  font-family: var(--fontDisplay), sans-serif;
 }
 
 .brand {
@@ -102,22 +111,10 @@ a {
   letter-spacing: -0.025em;
 }
 
-.brandMark {
-  width: 27px;
-  height: 27px;
-  display: grid;
-  align-content: center;
-  gap: 5px;
-}
-
-.brandMark span {
-  display: block;
-  height: 5px;
-  background: var(--deep);
-}
-
-.brandMark span:last-child {
-  width: 65%;
+.butterflyBrand {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
 }
 
 .brandEditorial {
@@ -128,7 +125,6 @@ a {
   color: var(--paper);
 }
 
-.siteHeader .brandMark,
 .siteHeader .brandFull {
   display: none;
 }
@@ -362,6 +358,17 @@ a {
   color: var(--deep);
 }
 
+.heroButterfly {
+  position: absolute;
+  z-index: 0;
+  top: 118px;
+  right: -38px;
+  width: min(58%, 360px);
+  height: auto;
+  opacity: 0.82;
+  pointer-events: none;
+}
+
 .visualTopline,
 .visualStatement,
 .criteriaList,
@@ -539,11 +546,6 @@ a {
     font-size: 1.52rem;
   }
 
-  .brandMark {
-    width: 23px;
-    height: 23px;
-  }
-
   .buttonSmall {
     min-height: 40px;
     padding-inline: 12px;
@@ -681,8 +683,9 @@ a {
   color: var(--paper);
 }
 
-.siteFooter .brandMark span {
-  background: var(--periwinkle);
+.siteFooter .butterflyBrand {
+  width: 38px;
+  height: 38px;
 }
 
 .footerTop {
@@ -2935,7 +2938,7 @@ a {
 @media (max-width: 700px) {
   .headerActions { gap: 8px; }
   .headerSearch { display: none; }
-  .headerCompare { min-width: 132px; min-height: 48px; padding-inline: 18px; gap: 10px; }
+  .headerCompare { min-width: 126px; min-height: 48px; padding-inline: 14px; gap: 8px; }
   .mobileMenu nav { inset: 92px 28px auto 28px; }
   .siteFooter { padding-top: 64px; }
   .footerTop { grid-template-columns: 1fr 1fr; }
@@ -3016,6 +3019,15 @@ a {
 
   .siteHeader .brandEditorial {
     font-size: 1.52rem;
+  }
+
+  .siteHeader .brand {
+    gap: 6px;
+  }
+
+  .siteHeader .butterflyBrand {
+    width: 22px;
+    height: 22px;
   }
 
   .mobileMenu nav {

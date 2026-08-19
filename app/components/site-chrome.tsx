@@ -1,15 +1,21 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Columns3, Menu, Search } from "lucide-react";
 import { categories } from "../lib/data";
 import { siteConfig } from "../config/site";
+import { ScrollHeaderShell } from "./scroll-header-shell";
 
 export function Brand() {
   return (
     <Link className="brand" href="/" aria-label={`${siteConfig.name} home`}>
-      <span className="brandMark" aria-hidden="true">
-        <span />
-        <span />
-      </span>
+      <Image
+        className="butterflyBrand"
+        src="/butterfly-mark.png"
+        alt=""
+        width={30}
+        height={30}
+        aria-hidden="true"
+      />
       <span className="brandFull">{siteConfig.name}</span>
       <span className="brandEditorial" aria-hidden="true">
         select za
@@ -20,7 +26,7 @@ export function Brand() {
 
 export function SiteHeader() {
   return (
-    <header className="siteHeader">
+    <ScrollHeaderShell>
       <div className="siteShell headerInner">
         <Brand />
         <nav className="desktopNav" aria-label="Main navigation">
@@ -62,7 +68,7 @@ export function SiteHeader() {
           </details>
         </div>
       </div>
-    </header>
+    </ScrollHeaderShell>
   );
 }
 
