@@ -47,18 +47,17 @@ export default async function Home() {
                 Compare two tools
               </Link>
             </div>
-            <div className="heroSignal" aria-hidden="true">
-              <span />
-              <Image
-                className="heroSignalMark"
-                src="/butterfly-mark.png"
-                alt=""
-                width={54}
-                height={54}
-                priority
-              />
-              <span />
-            </div>
+          </div>
+          <div className="heroArtwork" aria-hidden="true">
+            <Image
+              className="heroArtworkImage"
+              src="/hero-abstract-wave.png"
+              alt=""
+              width={1672}
+              height={941}
+              sizes="(max-width: 620px) calc(100vw - 32px), 1280px"
+              priority
+            />
           </div>
         </section>
 
