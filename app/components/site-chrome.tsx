@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Menu, Search } from "lucide-react";
+import { Columns3, Menu, Search } from "lucide-react";
 import { categories } from "../lib/data";
 import { siteConfig } from "../config/site";
 
@@ -10,60 +10,59 @@ export function Brand() {
         <span />
         <span />
       </span>
-      <span>{siteConfig.name}</span>
+      <span className="brandFull">{siteConfig.name}</span>
+      <span className="brandEditorial" aria-hidden="true">
+        select za
+      </span>
     </Link>
   );
 }
 
 export function SiteHeader() {
   return (
-    <>
-      <div className="disclosureBar">
-        <div className="siteShell disclosureInner">
-          <p>Independent reviews. Commercial links never affect our verdicts.</p>
-          <Link href="/affiliate-disclosure">Read our disclosure</Link>
+    <header className="siteHeader">
+      <div className="siteShell headerInner">
+        <Brand />
+        <nav className="desktopNav" aria-label="Main navigation">
+          <Link href="/reviews">Reviews</Link>
+          <Link href="/compare">Compare</Link>
+          <Link href="/software">Categories</Link>
+          <Link href="/guides">Guides</Link>
+        </nav>
+        <div className="headerActions">
+          <Link className="headerSearch" href="/search" aria-label="Search the site">
+            <Search size={21} strokeWidth={1.65} aria-hidden="true" />
+          </Link>
+          <Link className="headerMethod" href="/methodology">
+            Method
+          </Link>
+          <Link className="headerCompare" href="/compare">
+            <Columns3 size={19} strokeWidth={1.55} aria-hidden="true" />
+            <span>Compare</span>
+          </Link>
+          <details className="mobileMenu">
+            <summary aria-label="Open navigation">
+              <Menu size={22} strokeWidth={1.7} aria-hidden="true" />
+            </summary>
+            <nav aria-label="Mobile navigation">
+              <Link href="/reviews">Software reviews</Link>
+              <Link href="/compare">Comparisons</Link>
+              <Link href="/software">All categories</Link>
+              <Link href="/guides">Guides</Link>
+              <Link href="/methodology">Methodology</Link>
+              <Link href="/search">Search</Link>
+              <div className="mobileCategoryLinks">
+                {categories.map((category) => (
+                  <Link href={`/software/${category.slug}`} key={category.slug}>
+                    {category.name}
+                  </Link>
+                ))}
+              </div>
+            </nav>
+          </details>
         </div>
       </div>
-      <header className="siteHeader">
-        <div className="siteShell headerInner">
-          <Brand />
-          <nav className="desktopNav" aria-label="Main navigation">
-            <Link href="/reviews">Software reviews</Link>
-            <Link href="/compare">Comparisons</Link>
-            <Link href="/software">Categories</Link>
-            <Link href="/guides">Guides</Link>
-          </nav>
-          <div className="headerActions">
-            <Link className="iconTextLink" href="/search" aria-label="Search the site">
-              <Search size={18} strokeWidth={1.8} aria-hidden="true" />
-              <span>Search</span>
-            </Link>
-            <Link className="button buttonSmall" href="/compare">
-              Compare software
-            </Link>
-            <details className="mobileMenu">
-              <summary aria-label="Open navigation">
-                <Menu size={22} strokeWidth={1.7} aria-hidden="true" />
-              </summary>
-              <nav aria-label="Mobile navigation">
-                <Link href="/reviews">Software reviews</Link>
-                <Link href="/compare">Comparisons</Link>
-                <Link href="/software">All categories</Link>
-                <Link href="/guides">Guides</Link>
-                <Link href="/search">Search</Link>
-                <div className="mobileCategoryLinks">
-                  {categories.map((category) => (
-                    <Link href={`/software/${category.slug}`} key={category.slug}>
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
-              </nav>
-            </details>
-          </div>
-        </div>
-      </header>
-    </>
+    </header>
   );
 }
 
