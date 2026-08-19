@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Check, ExternalLink } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, ExternalLink } from "lucide-react";
 import { CategoryRow, GuideCard, ReviewCard } from "./components/editorial";
 import { CompareBuilder } from "./components/compare-builder";
 import { NewsletterForm } from "./components/forms";
@@ -40,7 +40,7 @@ export default async function Home() {
               <Link className="heroPrimaryAction" href="/software">
                 <span>Explore software</span>
                 <span className="heroActionIcon" aria-hidden="true">
-                  <ArrowRight size={20} strokeWidth={1.8} />
+                  <ArrowUpRight size={22} strokeWidth={1.8} />
                 </span>
               </Link>
               <Link className="heroSecondaryAction" href="/compare">
