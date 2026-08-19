@@ -37,48 +37,27 @@ export default async function Home() {
               that keep your business moving.
             </p>
             <div className="heroActions">
-              <Link className="button" href="/software">Explore software</Link>
-              <Link className="textButton" href="/compare">Compare two tools</Link>
+              <Link className="heroPrimaryAction" href="/software">
+                <span>Explore software</span>
+                <span className="heroActionIcon" aria-hidden="true">
+                  <ArrowRight size={20} strokeWidth={1.8} />
+                </span>
+              </Link>
+              <Link className="heroSecondaryAction" href="/compare">
+                Compare two tools
+              </Link>
             </div>
-            <form className="heroSearch" action="/search">
-              <label htmlFor="homeSearch">What are you looking for?</label>
-              <div className="searchRow">
-                <input
-                  id="homeSearch"
-                  name="q"
-                  type="search"
-                  placeholder="Search accounting, payroll, CRM and more"
-                />
-                <button type="submit">Search</button>
-              </div>
-            </form>
-          </div>
-
-          <div className="heroVisual" aria-label="A clear way to assess business software">
-            <Image
-              className="heroButterfly"
-              src="/butterfly-mark.png"
-              alt=""
-              width={360}
-              height={360}
-              priority
-              aria-hidden="true"
-            />
-            <div className="visualTopline">
-              <span>Selection notes</span>
-              <span>South Africa</span>
-            </div>
-            <div className="visualStatement">
-              <p>Look past the feature list.</p>
-              <strong>Buy for the way your team really works.</strong>
-            </div>
-            <div className="criteriaList">
-              <div><span>01</span><p>Pricing in rand</p></div>
-              <div><span>02</span><p>Useful local support</p></div>
-              <div><span>03</span><p>Compliance context</p></div>
-            </div>
-            <div className="visualPaper" aria-hidden="true">
-              <span /><span /><span />
+            <div className="heroSignal" aria-hidden="true">
+              <span />
+              <Image
+                className="heroSignalMark"
+                src="/butterfly-mark.png"
+                alt=""
+                width={54}
+                height={54}
+                priority
+              />
+              <span />
             </div>
           </div>
         </section>
