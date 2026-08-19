@@ -28,7 +28,7 @@ export default async function Home() {
     <>
       <SiteHeader />
       <main>
-        <section className="hero siteShell">
+        <section className="hero">
           <Image
             className="heroBackdrop"
             src="/hero-abstract-wave.png"
