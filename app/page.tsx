@@ -29,6 +29,15 @@ export default async function Home() {
       <SiteHeader />
       <main>
         <section className="hero siteShell">
+          <Image
+            className="heroBackdrop"
+            src="/hero-abstract-wave.png"
+            alt=""
+            fill
+            sizes="(max-width: 620px) calc(100vw - 32px), 1280px"
+            priority
+            aria-hidden="true"
+          />
           <div className="heroCopy">
             <p className="eyebrow">Independent research for South African businesses</p>
             <h1>Choose software with a clear head.</h1>
@@ -47,17 +56,6 @@ export default async function Home() {
                 Compare two tools
               </Link>
             </div>
-          </div>
-          <div className="heroArtwork" aria-hidden="true">
-            <Image
-              className="heroArtworkImage"
-              src="/hero-abstract-wave.png"
-              alt=""
-              width={1672}
-              height={941}
-              sizes="(max-width: 620px) calc(100vw - 32px), 1280px"
-              priority
-            />
           </div>
         </section>
 
