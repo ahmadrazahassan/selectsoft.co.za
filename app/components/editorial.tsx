@@ -1,5 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
+  ArrowUpRight,
   Boxes,
   Calculator,
   Check,
@@ -26,21 +28,36 @@ export function CategoryRow({ category, index }: { category: Category; index: nu
   const Icon = iconMap[category.icon];
   return (
     <Link className="categoryRow" href={`/software/${category.slug}`}>
-      <span className="categoryNumber">{String(index + 1).padStart(2, "0")}</span>
-      <Icon size={23} strokeWidth={1.6} aria-hidden="true" />
-      <div>
+      <div className="categoryCardTop">
+        <span className="categoryNumber">{String(index + 1).padStart(2, "0")}</span>
+        <Icon size={28} strokeWidth={1.45} aria-hidden="true" />
+      </div>
+      <div className="categoryCardBody">
         <h3>{category.name}</h3>
         <p>{category.summary}</p>
       </div>
-      <div className="categoryCount">
-        <strong>{category.count}</strong>
-        <span>reviews</span>
+      <div className="categoryCardFooter">
+        <span>{category.count} reviews</span>
+        <ArrowUpRight size={20} strokeWidth={1.6} aria-hidden="true" />
       </div>
     </Link>
   );
 }
 
-export function ProductMark({ product }: { product: Product }) {
+export function ProductMark({ product, logoSrc }: { product: Product; logoSrc?: string }) {
+  if (logoSrc) {
+    return (
+      <span className="productMark productMarkLogo">
+        <Image
+          className="productLogoImage"
+          src={logoSrc}
+          alt={`${product.name} logo`}
+          width={72}
+          height={72}
+        />
+      </span>
+    );
+  }
   return (
     <span className={`productMark productMark${product.tone}`} aria-label={`${product.name} wordmark`}>
       {product.initials}
@@ -57,24 +74,38 @@ export function EditorialScore({ score, compact = false }: { score: number; comp
   );
 }
 
-export function ReviewCard({ product, lead = false }: { product: Product; lead?: boolean }) {
+export function ReviewCard({
+  product,
+  lead = false,
+  compact = false,
+  logoSrc,
+}: {
+  product: Product;
+  lead?: boolean;
+  compact?: boolean;
+  logoSrc?: string;
+}) {
+  const className = ["reviewCard", lead && "reviewCardLead", compact && "reviewCardCompact"]
+    .filter(Boolean)
+    .join(" ");
   return (
-    <article className={lead ? "reviewCard reviewCardLead" : "reviewCard"}>
+    <article className={className}>
       <div className="reviewCardTop">
-        <ProductMark product={product} />
+        <ProductMark product={product} logoSrc={logoSrc} />
         <EditorialScore score={product.score} compact />
       </div>
       <p className="cardMeta">{product.shortCategory}</p>
       <h3>
         <Link href={`/reviews/${product.slug}`}>{product.name}</Link>
       </h3>
-      <p className="reviewVerdict">{product.verdict}</p>
+      {!compact && <p className="reviewVerdict">{product.verdict}</p>}
       <div className="bestFor">
         <span>Best for</span>
         <strong>{product.bestFor}</strong>
       </div>
       <Link className="plainLink" href={`/reviews/${product.slug}`}>
-        Read the full review
+        Read review
+        {compact && <ArrowUpRight size={17} strokeWidth={1.7} aria-hidden="true" />}
       </Link>
     </article>
   );

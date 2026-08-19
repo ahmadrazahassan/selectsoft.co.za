@@ -17,12 +17,19 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const publishedProducts = await getPublishedProducts();
-  const selectedProducts = [
-    publishedProducts.find((product) => product.slug === "simplepay")!,
-    publishedProducts.find((product) => product.slug === "sage-accounting")!,
-    publishedProducts.find((product) => product.slug === "xero")!,
-    publishedProducts.find((product) => product.slug === "yoco")!,
-  ];
+  const selectedReviews = [
+    { slug: "simplepay", logoSrc: "/logos/simplepay.png" },
+    { slug: "sage-accounting", logoSrc: "/logos/sage-business-cloud-accounting.png" },
+    { slug: "xero", logoSrc: "/logos/xero.png" },
+    { slug: "quickbooks-online", logoSrc: "/logos/quickbooks-online.png" },
+    { slug: "payspace", logoSrc: "/logos/payspace.png" },
+    { slug: "hubspot-crm", logoSrc: "/logos/hubspot-crm.png" },
+    { slug: "zoho-crm", logoSrc: "/logos/zoho-crm.png" },
+    { slug: "business-central", logoSrc: "/logos/dynamics-365-business-central.png" },
+  ].map(({ slug, logoSrc }) => ({
+    product: publishedProducts.find((product) => product.slug === slug)!,
+    logoSrc,
+  }));
 
   return (
     <>
@@ -60,18 +67,14 @@ export default async function Home() {
         </section>
 
         <section className="categorySection">
-          <div className="siteShell sectionSplitIntro">
-            <div>
-              <p className="eyebrow">Find the right category</p>
-              <h2>Start with the work you want to improve.</h2>
-            </div>
-            <div className="introAside">
-              <p>
-                A good shortlist begins with the problem, the people who will use the
-                software and the result the business needs to see.
-              </p>
-              <Link className="plainLink" href="/software">Explore all software</Link>
-            </div>
+          <div className="siteShell sectionIntroCentered">
+            <p className="eyebrow">Find the right category</p>
+            <h2>Start with the work you want to improve.</h2>
+            <p>
+              Choose the business task first, then explore software selected for
+              South African teams.
+            </p>
+            <Link className="plainLink" href="/software">Explore all software</Link>
           </div>
           <div className="siteShell categoryIndex">
             {categories.map((category, index) => (
@@ -81,23 +84,19 @@ export default async function Home() {
         </section>
 
         <section className="selectedReviews">
-          <div className="siteShell sectionHeaderRow">
-            <div>
-              <p className="eyebrow">Editor selection</p>
-              <h2>Strong choices, with the tradeoffs made clear.</h2>
-            </div>
-            <div>
-              <p>Products worth understanding, selected for a distinct business need.</p>
-              <Link className="plainLink" href="/reviews">View all reviews</Link>
-            </div>
+          <div className="siteShell sectionIntroCentered">
+            <p className="eyebrow">Editor selection</p>
+            <h2>Software worth a closer look.</h2>
+            <p>
+              Eight useful products, chosen for a clear business need and reviewed
+              with local context.
+            </p>
+            <Link className="plainLink" href="/reviews">View all reviews</Link>
           </div>
           <div className="siteShell reviewsLayout">
-            <ReviewCard product={selectedProducts[0]} lead />
-            <div className="reviewStack">
-              {selectedProducts.slice(1).map((product) => (
-                <ReviewCard product={product} key={product.slug} />
-              ))}
-            </div>
+            {selectedReviews.map(({ product, logoSrc }) => (
+              <ReviewCard product={product} logoSrc={logoSrc} compact key={product.slug} />
+            ))}
           </div>
         </section>
 
@@ -105,21 +104,23 @@ export default async function Home() {
           <div className="siteShell comparisonInner">
             <div className="comparisonCopy">
               <p className="eyebrow">Compare software</p>
-              <h2>Put two tools side by side.</h2>
+              <h2>See the difference before you decide.</h2>
               <p>
-                Choose a pair and see the practical differences in cost, daily use,
-                support and fit for a South African team.
+                Select two products and compare cost, daily use, support and local
+                fit in one clear view.
               </p>
             </div>
             <CompareBuilder products={publishedProducts} comparisons={comparisons} compact />
             <div className="popularComparisons">
-              <span>Useful comparisons</span>
-              {comparisons.map((comparison) => (
-                <Link href={`/compare/${comparison.slug}`} key={comparison.slug}>
-                  {comparison.title}
-                  <ArrowRight size={17} strokeWidth={1.7} aria-hidden="true" />
-                </Link>
-              ))}
+              <span>Popular comparisons</span>
+              <div>
+                {comparisons.map((comparison) => (
+                  <Link href={`/compare/${comparison.slug}`} key={comparison.slug}>
+                    {comparison.title}
+                    <ArrowRight size={17} strokeWidth={1.7} aria-hidden="true" />
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </section>

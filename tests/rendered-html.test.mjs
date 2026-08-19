@@ -18,7 +18,8 @@ test("renders the complete publication homepage", async () => {
   const html = await response.text();
   assert.match(html, /Choose software with a clear head/);
   assert.match(html, /Start with the work you want to improve/);
-  assert.match(html, /Put two tools side by side/);
+  assert.match(html, /See the difference before you decide/);
+  assert.match(html, /SimplePay logo/);
   assert.match(html, /Make a better software decision/);
   assert.match(html, /Software Select ZA/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/);
