@@ -1,0 +1,57 @@
+name: Deploy
+
+# Tests gate the deploy. The same build that passes the suite is the artifact
+# that ships, so nothing is rebuilt between the check and the release.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # NEXT_PUBLIC_* is inlined by Vite at build time, so it has to be present
+      # here rather than set on the Worker afterwards.
+      NEXT_PUBLIC_SITE_URL: https://selectsoft.co.za
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # This builds first, so dist/ is the tested artifact.
+      - name: Test
+        run: npm test
+
+      - name: Deploy to Cloudflare Workers
+        run: npx wrangler deploy -c dist/server/wrangler.json
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Check the deploy answers
+        run: |
+          for path in / /robots.txt /sitemap.xml /reviews/sage-accounting; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://selectsoft.co.za$path")
+            echo "$path -> $code"
+            [ "$code" = "200" ] || exit 1
+          done
