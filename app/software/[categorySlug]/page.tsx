@@ -3,10 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs, ReviewCard } from "../../components/editorial";
 import { PageShell } from "../../components/site-chrome";
-import { categories, getCategory, guides, products } from "../../lib/data";
+import { getCategory, getCategoryProducts, guides, liveCategories } from "../../lib/data";
 
 export function generateStaticParams() {
-  return categories.map((category) => ({ categorySlug: category.slug }));
+  return liveCategories.map((category) => ({ categorySlug: category.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ categorySlug: string }> }): Promise<Metadata> {
@@ -25,14 +25,17 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
   const { categorySlug } = await params;
   const category = getCategory(categorySlug);
   if (!category) notFound();
-  const categoryProducts = products.filter((product) => product.category === category.name);
+  // A category with nothing in it is not published. Better a clean 404 than a
+  // page that advertises a number and then admits it has no reviews.
+  const categoryProducts = getCategoryProducts(categorySlug);
+  if (!categoryProducts.length) notFound();
   const relevantGuides = guides.filter((guide) => guide.topic === category.shortName || category.name.includes(guide.topic));
 
   return (
     <PageShell>
       <section className="pageHero siteShell categoryHero">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Software", href: "/software" }, { label: category.name }]} />
-        <p className="eyebrow">{category.count} reviews and guides</p>
+        <p className="eyebrow">{categoryProducts.length} {categoryProducts.length === 1 ? "review" : "reviews"}</p>
         <h1>{category.name} software</h1>
         <p>{category.longDescription}</p>
         <div className="updatedNote"><span>Reviewed by our editorial desk</span><span>Updated 19 August 2026</span></div>
@@ -43,13 +46,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           <div><p className="eyebrow">Current selection</p><h2>Products worth comparing</h2></div>
           <p>Scores reflect the needs of the category and are never influenced by commercial relationships.</p>
         </div>
-        {categoryProducts.length ? (
-          <div className="reviewGrid">
-            {categoryProducts.map((product) => <ReviewCard product={product} key={product.slug} />)}
-          </div>
-        ) : (
-          <div className="emptyState"><h2>Research is in progress</h2><p>This category will receive its first full reviews soon.</p></div>
-        )}
+        <div className="reviewGrid">
+          {categoryProducts.map((product) => <ReviewCard product={product} key={product.slug} />)}
+        </div>
       </section>
 
       <section className="methodStrip">

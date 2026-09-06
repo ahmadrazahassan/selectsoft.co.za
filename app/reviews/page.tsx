@@ -4,6 +4,7 @@ import { PageShell } from "../components/site-chrome";
 import { getPublishedProducts } from "../lib/content-repository";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/reviews" },
   title: "Software reviews",
   description: "Independent reviews of business software used by South African teams.",
 };

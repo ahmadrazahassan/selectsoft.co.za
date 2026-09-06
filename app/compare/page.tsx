@@ -7,6 +7,7 @@ import { comparisons, getProduct } from "../lib/data";
 import { getPublishedProducts } from "../lib/content-repository";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/compare" },
   title: "Compare business software",
   description: "Put two business software products side by side and focus on the differences that matter.",
 };

@@ -6,19 +6,27 @@ export function InfoPage({
   title,
   intro,
   sections,
+  effective,
+  footNote,
 }: {
   eyebrow: string;
   title: string;
   intro: string;
   sections: { title: string; paragraphs: string[] }[];
+  /** Shown on legal pages, where a reader needs to know which version applies. */
+  effective?: string;
+  footNote?: string;
 }) {
   return (
     <PageShell>
       <section className="pageHero siteShell infoHero">
-        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: title }]} />
+        {/* the short label, not the headline: a long title used to push the
+            breadcrumb row past the viewport on a narrow screen */}
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: eyebrow }]} />
         <p className="eyebrow">{eyebrow}</p>
         <h1>{title}</h1>
         <p>{intro}</p>
+        {effective ? <p className="infoEffective">In effect from {effective}</p> : null}
       </section>
       <article className="siteShell infoArticle">
         {sections.map((section, index) => (
@@ -30,6 +38,7 @@ export function InfoPage({
             </div>
           </section>
         ))}
+        {footNote ? <p className="infoFootNote">{footNote}</p> : null}
       </article>
     </PageShell>
   );

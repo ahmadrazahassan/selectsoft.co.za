@@ -5,6 +5,7 @@ import { PageShell } from "../components/site-chrome";
 import { getPublishedProducts } from "../lib/content-repository";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/software" },
   title: "Business software directory",
   description: "Browse reviewed accounting, payroll, CRM, ERP and commerce software for South African businesses.",
 };

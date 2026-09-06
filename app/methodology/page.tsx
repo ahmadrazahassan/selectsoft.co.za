@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { InfoPage } from "../components/info-page";
 
-export const metadata: Metadata = { title: "Review methodology" };
+export const metadata: Metadata = {
+  alternates: { canonical: "/methodology" }, title: "Review methodology" };
 
 export default function MethodologyPage() {
   return <InfoPage eyebrow="Our method" title="How we evaluate software." intro="A score is only useful when the thinking behind it is visible. Our method starts with the work a product is supposed to improve." sections={[

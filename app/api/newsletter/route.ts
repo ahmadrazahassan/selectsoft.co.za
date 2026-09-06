@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createServiceSupabaseClient } from "../../lib/supabase";
+import { publisher } from "../../config/site";
 
 const schema = z.object({ email: z.string().trim().toLowerCase().email().max(254) });
 
@@ -7,7 +8,12 @@ export async function POST(request: Request) {
   const parsed = schema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ message: "Enter a valid email address." }, { status: 400 });
   const client = createServiceSupabaseClient();
-  if (!client) return Response.json({ message: "Subscriptions will open shortly." }, { status: 503 });
+  if (!client) {
+    return Response.json(
+      { message: `We could not record that address. Please email ${publisher.email} to be added.` },
+      { status: 503 },
+    );
+  }
   const { error } = await client.from("newsletter_subscribers").upsert({
     email: parsed.data.email,
     status: "active",

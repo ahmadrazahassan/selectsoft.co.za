@@ -5,7 +5,8 @@ import { Breadcrumbs, ProductMark } from "../components/editorial";
 import { PageShell } from "../components/site-chrome";
 import { guides, products } from "../lib/data";
 
-export const metadata: Metadata = { title: "Search" };
+export const metadata: Metadata = {
+  alternates: { canonical: "/search" }, title: "Search" };
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q = "" } = await searchParams;

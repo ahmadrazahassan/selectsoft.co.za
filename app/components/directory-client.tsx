@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import type { Product } from "../lib/data";
-import { EditorialScore, ProductMark } from "./editorial";
+import { ArrowUpRight } from "lucide-react";
+import { getPricing, type Product } from "../lib/data";
+import { PriceBadges, PriceTag, ProductMark } from "./editorial";
 
 export function DirectoryClient({ products }: { products: Product[] }) {
   const [query, setQuery] = useState("");
@@ -44,10 +45,28 @@ export function DirectoryClient({ products }: { products: Product[] }) {
                 <p>{product.verdict}</p>
                 <span>Best for {product.bestFor}</span>
               </div>
-              <EditorialScore score={product.score} compact />
+              {(() => {
+                const price = getPricing(product.slug);
+                return price ? (
+                  <div className="softwarePrice">
+                    <PriceTag price={price} />
+                    <PriceBadges price={price} />
+                  </div>
+                ) : null;
+              })()}
               <div className="softwareActions">
-                <Link className="plainLink" href={`/reviews/${product.slug}`}>Read review</Link>
-                <Link className="plainLink" href={`/compare?first=${product.slug}`}>Compare</Link>
+                <Link className="btn btnSecondary btnCompact" href={`/reviews/${product.slug}`}>
+                  Read review
+                </Link>
+                <a
+                  className="btn btnPrimary btnCompact"
+                  href={getPricing(product.slug)?.pricingUrl ?? product.sourceUrl}
+                  rel="nofollow sponsored noopener noreferrer"
+                  target="_blank"
+                >
+                  <span>Visit site</span>
+                  <ArrowUpRight size={15} strokeWidth={2.2} aria-hidden="true" />
+                </a>
               </div>
             </article>
           ))}

@@ -4,6 +4,7 @@ import { PageShell } from "../components/site-chrome";
 import { guides } from "../lib/data";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/guides" },
   title: "Software buying guides",
   description: "Practical guidance for South African teams choosing business software.",
 };
@@ -19,7 +20,7 @@ export default function GuidesPage() {
       </section>
       <section className="siteShell guidesIndex">
         <GuideCard guide={guides[0]} lead />
-        <div className="guideIndexGrid">{guides.slice(1).map((guide) => <GuideCard guide={guide} lead key={guide.slug} />)}</div>
+        <div className="guideIndexGrid">{guides.slice(1).map((guide) => <GuideCard guide={guide} key={guide.slug} />)}</div>
       </section>
     </PageShell>
   );

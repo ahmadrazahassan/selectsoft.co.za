@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { InfoPage } from "../components/info-page";
 
-export const metadata: Metadata = { title: "Editorial policy" };
+export const metadata: Metadata = {
+  alternates: { canonical: "/editorial-policy" }, title: "Editorial policy" };
 
 export default function EditorialPolicyPage() {
   return <InfoPage eyebrow="Editorial standards" title="Useful work depends on trust." intro="Our editors decide what to cover, how to assess it and what the final verdict says. Commercial relationships do not enter that process." sections={[

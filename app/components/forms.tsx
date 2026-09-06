@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 type FormState = "idle" | "sending" | "done" | "error";
 
@@ -39,8 +40,16 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
           placeholder="you@company.co.za"
           required
         />
-        <button type="submit" disabled={state === "sending"}>
-          {state === "sending" ? "Sending" : "Subscribe"}
+        <button
+          type="submit"
+          disabled={state === "sending"}
+          aria-label={state === "sending" ? "Sending" : "Subscribe"}
+        >
+          {state === "sending" ? (
+            <Loader2 size={17} strokeWidth={2.2} aria-hidden="true" />
+          ) : (
+            <ArrowRight size={17} strokeWidth={2.2} aria-hidden="true" />
+          )}
         </button>
       </div>
       {!compact && <p className="consentCopy">One useful note each month. You can leave at any time.</p>}

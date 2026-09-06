@@ -40,3 +40,9 @@ yarn-error.log*
 /.wrangler/
 /outputs/
 /work/
+
+# Not published. REVIEWS.md holds 8 099 generated product reviews carrying
+# fabricated South African names and "Identity verified" badges. It is not used
+# by the site and must not appear in a public repository named after the
+# domain. Delete it once you no longer need it locally.
+/REVIEWS.md

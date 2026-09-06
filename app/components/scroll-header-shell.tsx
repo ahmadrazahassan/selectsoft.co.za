@@ -10,7 +10,7 @@ export function ScrollHeaderShell({ children }: { children: ReactNode }) {
 
     const updateHeader = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => setIsAtTop(window.scrollY <= 8));
+      frame = requestAnimationFrame(() => setIsAtTop(window.scrollY <= 12));
     };
 
     updateHeader();
@@ -23,7 +23,7 @@ export function ScrollHeaderShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <header className={`siteHeader${isAtTop ? "" : " siteHeaderHidden"}`}>
+    <header className={`siteHeader${isAtTop ? "" : " siteHeaderFloat"}`}>
       {children}
     </header>
   );

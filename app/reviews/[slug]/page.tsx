@@ -1,9 +1,37 @@
 import type { Metadata } from "next";
-import { ExternalLink } from "lucide-react";
+import Link from "next/link";
+import {
+  ArrowUpRight,
+  BarChart3,
+  FileText,
+  Flag,
+  LayoutGrid,
+  ListChecks,
+  MapPin,
+  Wallet,
+  Scale,
+  HelpCircle,
+  Layers,
+  TrendingUp,
+  Users,
+  Wrench,
+  Check,
+} from "lucide-react";
 import { notFound } from "next/navigation";
-import { Breadcrumbs, EditorialScore, ProductMark, ProsCons, ReviewCard } from "../../components/editorial";
+import { Breadcrumbs, ProductMark, ProsCons, ReviewCard } from "../../components/editorial";
+import { ReviewToc } from "../../components/review-toc";
+import {
+  DimensionBars,
+  HeadToHead,
+  ScoreRadar,
+} from "../../components/review-charts";
+import { CostCurve, PriceRanking } from "../../components/cost-charts";
 import { PageShell } from "../../components/site-chrome";
-import { getProduct, products } from "../../lib/data";
+import { EDITOR, getPricing, getProduct, pricedOn, products } from "../../lib/data";
+import { hasRatings } from "../../lib/ratings";
+import { siteConfig } from "../../config/site";
+import { RatingCitations } from "../../components/ratings";
+import { reviewDetail } from "../../lib/reviews";
 
 export function generateStaticParams() {
   return products.map((product) => ({ slug: product.slug }));
@@ -13,11 +41,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const product = getProduct(slug);
   if (!product) return {};
+  const url = `${siteConfig.url}/reviews/${product.slug}`;
   return {
     title: `${product.name} review for South African businesses`,
     description: product.verdict,
-    openGraph: { title: `${product.name} review`, description: product.verdict, images: [] },
-    twitter: { title: `${product.name} review`, description: product.verdict, images: [] },
+    alternates: { canonical: `/reviews/${product.slug}` },
+    openGraph: {
+      type: "article",
+      title: `${product.name} review`,
+      description: product.verdict,
+      url,
+    },
+    twitter: { card: "summary_large_image", title: `${product.name} review`, description: product.verdict },
   };
 }
 
@@ -26,95 +61,388 @@ export default async function ReviewPage({ params }: { params: Promise<{ slug: s
   const product = getProduct(slug);
   if (!product) notFound();
   const related = products.filter((item) => item.category === product.category && item.slug !== product.slug).slice(0, 3);
+  const price = getPricing(product.slug);
+  const detail = reviewDetail[product.slug];
+  const peers = products.filter((item) => item.category === product.category);
+  const ranked = peers
+    .filter((item) => item.slug !== product.slug)
+    .sort((a, b) => b.score - a.score);
+
+  const reviewUrl = `${siteConfig.url}/reviews/${product.slug}`;
+  /* Our own editorial score, expressed as a Review of a Product. The offer is
+     only declared where the vendor publishes a rand figure we have verified. */
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        name: product.name,
+        description: product.verdict,
+        brand: { "@type": "Brand", name: product.vendor },
+        category: product.category,
+        ...(price?.monthlyZar
+          ? {
+              offers: {
+                "@type": "Offer",
+                price: price.monthlyZar,
+                priceCurrency: "ZAR",
+                url: price.pricingUrl,
+                availability: "https://schema.org/InStock",
+              },
+            }
+          : {}),
+        review: {
+          "@type": "Review",
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: product.score,
+            bestRating: 10,
+            worstRating: 0,
+          },
+          author: { "@type": "Person", name: EDITOR.name },
+          publisher: { "@type": "Organization", name: siteConfig.name },
+          datePublished: product.reviewed,
+          reviewBody: detail?.finalView ?? product.verdict,
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
+          { "@type": "ListItem", position: 2, name: "Reviews", item: `${siteConfig.url}/reviews` },
+          { "@type": "ListItem", position: 3, name: product.name, item: reviewUrl },
+        ],
+      },
+    ],
+  };
 
   return (
     <PageShell>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
       <article>
         <header className="reviewHero siteShell">
           <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Reviews", href: "/reviews" }, { label: product.name }]} />
-          <div className="reviewHeroGrid">
-            <div>
-              <p className="eyebrow">{product.category}</p>
-              <h1>{product.name} review</h1>
-              <p className="reviewDeck">{product.verdict}</p>
-              <div className="byline"><span>By Nomsa Dlamini</span><span>Reviewed {product.reviewed}</span><span>Fact checked</span></div>
+          <div className="reviewHeroCore">
+            <ProductMark product={product} size="large" />
+            <h1>
+              {product.name}
+              <span className="reviewCategoryTag">{product.shortCategory}</span>
+            </h1>
+            <p className="reviewTagline">{product.bestFor}</p>
+            <div className="reviewRating">
+              <strong>{product.score.toFixed(1)}</strong>
+              <span>out of 10</span>
+              <a href="#score">See how we scored it</a>
             </div>
-            <div className="reviewIdentity">
-              <ProductMark product={product} />
-              <EditorialScore score={product.score} />
-            </div>
+            <a
+              className="btn btnPrimary btnLarge"
+              href={price?.pricingUrl ?? product.sourceUrl}
+              rel="nofollow sponsored noopener noreferrer"
+              target="_blank"
+            >
+              <span>Visit {product.name}</span>
+              <span className="btnIcon" aria-hidden="true">
+                <ArrowUpRight size={18} strokeWidth={2} />
+              </span>
+            </a>
+            <p className="reviewByline">
+              Reviewed {product.reviewed} by <Link href="/authors/khadija-bibi">{EDITOR.name}</Link>. Prices checked {pricedOn(product.slug)}.
+            </p>
           </div>
         </header>
 
-        <section className="siteShell verdictPanel">
-          <div><p className="eyebrow">Our verdict</p><h2>{product.bestFor}</h2></div>
-          <p>{product.verdict}</p>
-          <a className="button" href={product.sourceUrl} rel="nofollow noopener noreferrer" target="_blank">
-            Visit official site <ExternalLink size={17} strokeWidth={1.7} aria-hidden="true" />
-          </a>
-          <small>Product details can change. Confirm current plans with the vendor.</small>
-        </section>
-
-        <section className="siteShell factGrid" aria-label="Key product facts">
-          {product.facts.map((fact) => <div key={fact.label}><span>{fact.label}</span><strong>{fact.value}</strong></div>)}
-        </section>
-
         <div className="siteShell reviewBodyLayout">
-          <aside className="reviewToc">
-            <p>In this review</p>
-            <a href="#overview">Overview</a>
-            <a href="#strengths">Strengths and limits</a>
-            <a href="#features">Key features</a>
-            <a href="#local">South African view</a>
-            <a href="#score">Score breakdown</a>
-            <a href="#verdict">Final view</a>
-          </aside>
+          <ReviewToc
+            items={[
+              { id: "overview", label: "Overview" },
+              { id: "strengths", label: "Strengths and limits" },
+              { id: "features", label: "Capability" },
+              { id: "setup", label: "Setup and support" },
+              { id: "pricing", label: "What it costs" },
+              { id: "local", label: "South African view" },
+              { id: "score", label: "How we scored it" },
+              ...(hasRatings(product.slug)
+                ? [{ id: "ratings", label: "What other buyers rate it" }]
+                : []),
+              { id: "benchmark", label: "Against the category" },
+              { id: "cost", label: "Cost over time" },
+              { id: "versus", label: "Head to head" },
+              { id: "alternatives", label: "Alternatives" },
+              { id: "faq", label: "Common questions" },
+              { id: "verdict", label: "Final view" },
+            ]}
+          />
           <div className="reviewProse">
             <section id="overview">
-              <p className="eyebrow">Overview</p>
-              <h2>What it is like to use</h2>
-              <p>
-                {product.name} is at its best when the team has a clear owner for the system and a defined routine for keeping information current. The product covers the central work expected in {product.category.toLowerCase()}, but the quality of the decision still depends on setup, support and the other tools already used by the business.
-              </p>
-              <p>
-                We would put it on a serious shortlist for {product.bestFor.toLowerCase()}. Teams with unusual reporting, approval or integration needs should use a trial or structured vendor session to work through their own examples before signing a contract.
-              </p>
+              <p className="sectionChip"><FileText size={15} strokeWidth={2} aria-hidden="true" />The assessment</p>
+              <h2>What {product.name} is, honestly</h2>
+              {detail.overview.map((paragraph) => <p key={paragraph.slice(0, 40)}>{paragraph}</p>)}
             </section>
-            <section id="strengths"><ProsCons product={product} /></section>
+            <section id="strengths">
+              <p className="sectionChip"><ListChecks size={15} strokeWidth={2} aria-hidden="true" />The balance</p>
+              <h2>Where it is strong, and where it is not</h2>
+              <ProsCons product={product} />
+            </section>
             <section id="features">
-              <p className="eyebrow">Core capability</p>
-              <h2>The features that matter</h2>
+              <p className="sectionChip"><LayoutGrid size={15} strokeWidth={2} aria-hidden="true" />Capability</p>
+              <h2>What it does better than most</h2>
               <div className="featureList">
-                {product.features.map((feature, index) => <div key={feature}><span>{String(index + 1).padStart(2, "0")}</span><strong>{feature}</strong><p>A practical part of the daily workflow, with depth that should be checked against your process.</p></div>)}
-              </div>
-            </section>
-            <section id="local" className="localReviewNote">
-              <p className="eyebrow">South African view</p>
-              <h2>Local fit should be checked early.</h2>
-              <p>{product.localView}</p>
-            </section>
-            <section id="score">
-              <p className="eyebrow">Score breakdown</p>
-              <h2>How the result was formed</h2>
-              <div className="scoreBars">
-                {[
-                  ["Everyday use", product.score],
-                  ["Features", Math.max(7.6, product.score - 0.2)],
-                  ["Value", Math.max(7.4, product.score - 0.4)],
-                  ["Support", Math.max(7.2, product.score - 0.5)],
-                  ["South African fit", Math.min(9.4, product.score + (product.slug === "simplepay" || product.slug === "yoco" ? 0.4 : 0))],
-                ].map(([label, value]) => (
-                  <div key={String(label)}><span>{label}</span><div><i style={{ width: `${Number(value) * 10}%` }} /></div><strong>{Number(value).toFixed(1)}</strong></div>
+                {detail.capabilities.map((capability, index) => (
+                  <div key={capability.name}>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <strong>{capability.name}</strong>
+                    <p>{capability.detail}</p>
+                  </div>
                 ))}
               </div>
             </section>
-            <section id="verdict">
-              <p className="eyebrow">Final view</p>
-              <h2>Should it make the shortlist?</h2>
-              <p>{product.verdict}</p>
-              <p>
-                Keep the final buying session grounded in your own records, reporting needs and support expectations. A confident choice is one the team can explain without relying on the sales presentation.
+            <section id="setup">
+              <p className="sectionChip"><Wrench size={15} strokeWidth={2} aria-hidden="true" />Setup and support</p>
+              <h2>Getting it running, and getting help</h2>
+              <div className="splitProse">
+                <div>
+                  <h3>What implementation actually involves</h3>
+                  <p>{detail.implementation}</p>
+                </div>
+                <div>
+                  <h3>What happens when something breaks</h3>
+                  <p>{detail.support}</p>
+                </div>
+              </div>
+            </section>
+            <section id="pricing">
+              <p className="sectionChip"><Wallet size={15} strokeWidth={2} aria-hidden="true" />What it costs</p>
+              <h2>How the money actually works</h2>
+              <p>{detail.pricingView}</p>
+              {price?.plans ? (
+                <div className="planSection">
+                  <div className="planGrid">
+                    {price.plans.map((plan, index) => {
+                      const lead = price.plans!.length > 1 && index === 1;
+                      return (
+                        <article
+                          className={lead ? "planCard planCardLead" : "planCard"}
+                          key={plan.name}
+                        >
+                          <h3>{plan.name}</h3>
+                          <p className="planSummary">{plan.summary}</p>
+                          <p className="planPriceRow">
+                            <span className="planCurrency">R</span>
+                            <span className="planFigure">{plan.price.replace(/^R/, "")}</span>
+                            <span className="planUnit">{plan.unit}</span>
+                          </p>
+                          <a
+                            className={lead ? "btn btnPrimary planCta" : "btn btnSecondary planCta"}
+                            href={price.pricingUrl}
+                            rel="nofollow sponsored noopener noreferrer"
+                            target="_blank"
+                          >
+                            Get {plan.name}
+                          </a>
+                          <ul className="planFeatures">
+                            {plan.features.map((feature) => (
+                              <li key={feature}>
+                                <Check size={14} strokeWidth={2.6} aria-hidden="true" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </article>
+                      );
+                    })}
+                  </div>
+                  <p className="chartNote">
+                    Read off the vendor pricing page on {pricedOn(product.slug)}. Vendors
+                    change prices and run promotions without notice, so confirm the
+                    current figure before you buy.
+                  </p>
+                </div>
+              ) : null}
+              <aside className="buyPanel">
+                <div>
+                  <p className="buyPanelLabel">Starting price</p>
+                  <p className="buyPanelPrice">{price ? price.entry : "On request"}</p>
+                  <p className="buyPanelUnit">{price ? price.unit : "quoted by the vendor"}</p>
+                </div>
+                <dl className="buyPanelFacts">
+                  {product.facts
+                    .filter((fact) => fact.label !== "Pricing")
+                    .map((fact) => (
+                      <div key={fact.label}>
+                        <dt>{fact.label}</dt>
+                        <dd>{fact.value}</dd>
+                      </div>
+                    ))}
+                  <div>
+                    <dt>Free trial</dt>
+                    <dd>
+                      {price?.trialDays
+                        ? `${price.trialDays} days`
+                        : price?.trialNote
+                          ? "Yes, length not published"
+                          : "Not offered"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Product demo</dt>
+                    <dd>{price?.demo ? "On request" : "Not advertised"}</dd>
+                  </div>
+                </dl>
+                <div className="buyPanelAction">
+                  <a
+                    className="btn btnPrimary"
+                    href={price?.pricingUrl ?? product.sourceUrl}
+                    rel="nofollow sponsored noopener noreferrer"
+                    target="_blank"
+                  >
+                    <span>Visit {product.name}</span>
+                    <ArrowUpRight size={16} strokeWidth={2} aria-hidden="true" />
+                  </a>
+                  <p className="buyPanelDisclosure">
+                    We may earn a commission if you subscribe through this link, at
+                    no extra cost to you. It never affects a score or a ranking.{" "}
+                    <Link href="/affiliate-disclosure">How we make money</Link>
+                  </p>
+                </div>
+              </aside>
+            </section>
+            <section id="local" className="localReviewNote">
+              <p className="sectionChip"><MapPin size={15} strokeWidth={2} aria-hidden="true" />Local view</p>
+              <h2>What changes in South Africa</h2>
+              <p>{product.localView}</p>
+            </section>
+            <section id="score">
+              <p className="sectionChip"><BarChart3 size={15} strokeWidth={2} aria-hidden="true" />How we scored it</p>
+              <h2>Where the number comes from</h2>
+              <div className="scoreBars">
+                {detail.scores.map((row) => (
+                  <div key={row.name}>
+                    <span>{row.name}</span>
+                    <div><i style={{ width: `${row.value * 10}%` }} /></div>
+                    <strong>{row.value.toFixed(1)}</strong>
+                    <p>{row.note}</p>
+                  </div>
+                ))}
+              </div>
+              <ScoreRadar product={product} peers={peers} />
+              <p className="scoreMethod">
+                The headline score is the mean of these five. Each number is a
+                judgement, not a measurement, and the reason for it is written
+                beside it so you can disagree with it.
               </p>
+            </section>
+            {hasRatings(product.slug) ? (
+              <section id="ratings">
+                <p className="sectionChip">
+                  <Users size={15} strokeWidth={2} aria-hidden="true" />
+                  What other buyers rate it
+                </p>
+                <h2>How {product.name} scores elsewhere</h2>
+                <RatingCitations slug={product.slug} name={product.name} />
+              </section>
+            ) : null}
+            <section id="benchmark">
+              <p className="sectionChip"><Layers size={15} strokeWidth={2} aria-hidden="true" />Against the category</p>
+              <h2>How it compares with its peers</h2>
+              <DimensionBars product={product} peers={peers} />
+              <PriceRanking product={product} peers={peers} />
+            </section>
+            <section id="cost">
+              <p className="sectionChip"><TrendingUp size={15} strokeWidth={2} aria-hidden="true" />Cost over time</p>
+              <h2>What it really costs over three years</h2>
+              <CostCurve product={product} peers={peers} />
+            </section>
+            <section id="versus">
+              <p className="sectionChip"><Scale size={15} strokeWidth={2} aria-hidden="true" />Head to head</p>
+              <h2>Against its closest rival</h2>
+              <HeadToHead product={product} peers={peers} />
+            </section>
+            <section id="alternatives">
+              <p className="sectionChip"><Layers size={15} strokeWidth={2} aria-hidden="true" />Alternatives</p>
+              <h2>What to look at instead</h2>
+              <ol className="altList">
+                {ranked.slice(0, 4).map((item, index) => {
+                  const altPrice = getPricing(item.slug);
+                  return (
+                    <li key={item.slug}>
+                      <span className="altRank">{index + 1}</span>
+                      <ProductMark product={item} />
+                      <div className="altBody">
+                        <h3>
+                          <Link href={`/reviews/${item.slug}`}>{item.name}</Link>
+                        </h3>
+                        <p>{item.bestFor}</p>
+                      </div>
+                      <div className="altMeta">
+                        <strong>{item.score.toFixed(1)}</strong>
+                        <span>{altPrice ? altPrice.entry : "On request"}</span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+            <section id="faq">
+              <p className="sectionChip"><HelpCircle size={15} strokeWidth={2} aria-hidden="true" />Common questions</p>
+              <h2>What buyers always ask</h2>
+              <div className="faqList">
+                {[
+                  {
+                    q: `How much does ${product.name} cost in South Africa?`,
+                    a: price
+                      ? `${price.entry} ${price.unit}. ${price.planNote}.${price.fxNote ? ` ${price.fxNote}.` : ""}`
+                      : "The vendor publishes no rate card, so the figure arrives as a quote.",
+                  },
+                  {
+                    q: `Does ${product.name} offer a free trial?`,
+                    a: price?.trialDays
+                      ? `Yes, ${price.trialDays} days.${price.freeTier ? ` There is also a free tier: ${price.freeTier.toLowerCase()}.` : ""}`
+                      : price?.trialNote
+                        ? `A trial is offered but the length is not published, so ask when you sign up.`
+                        : price?.freeTier
+                          ? `There is no timed trial, but there is a free tier: ${price.freeTier.toLowerCase()}.`
+                          : "No free trial is advertised. A demonstration is the usual route.",
+                  },
+                  {
+                    q: `Can you book a demonstration of ${product.name}?`,
+                    a: price?.demo
+                      ? "Yes. The vendor offers a demonstration on request, which is the normal route for a quoted product."
+                      : "No demonstration is advertised. The trial is the way to evaluate it.",
+                  },
+                  {
+                    q: `Is ${product.name} a good fit for a South African business?`,
+                    a: product.localView,
+                  },
+                  {
+                    q: `Who is ${product.name} best suited to?`,
+                    a: `${product.bestFor}. ${detail.finalView}`,
+                  },
+                ].map((item, index) => (
+                  <details key={item.q}>
+                    <summary>
+                      <span className="faqIndex">{String(index + 1).padStart(2, "0")}</span>
+                      <span className="faqQuestion">{item.q}</span>
+                      <span className="faqToggle" aria-hidden="true" />
+                    </summary>
+                    <p>{item.a}</p>
+                  </details>
+                ))}
+              </div>
+              <p className="chartNote">
+                Answered from this product record, so these can never drift from the
+                figures above.
+              </p>
+              <p className="faqContact">
+                Still deciding? <Link href="/contact">Ask us directly</Link>
+              </p>
+            </section>
+            <section id="verdict">
+              <p className="sectionChip"><Flag size={15} strokeWidth={2} aria-hidden="true" />Final view</p>
+              <h2>Should it make the shortlist?</h2>
+              <p>{detail.finalView}</p>
             </section>
             <aside className="sourceNote">
               <h2>Research note</h2>

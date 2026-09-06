@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Breadcrumbs, EditorialScore, ProductMark } from "../../components/editorial";
+import { Breadcrumbs, DuelSide } from "../../components/editorial";
 import { PageShell } from "../../components/site-chrome";
-import { comparisons, getComparison, getProduct } from "../../lib/data";
+import { EDITOR, comparisons, getComparison, getProduct } from "../../lib/data";
 
 export function generateStaticParams() {
   return comparisons.map((comparison) => ({ slug: comparison.slug }));
@@ -37,13 +37,13 @@ export default async function ComparisonPage({ params }: { params: Promise<{ slu
           <p className="eyebrow">Independent comparison</p>
           <h1>{comparison.title}</h1>
           <p>{comparison.summary}</p>
-          <div className="byline"><span>By Nomsa Dlamini</span><span>Reviewed 19 August 2026</span><span>Fact checked</span></div>
+          <div className="byline"><span>By <Link href="/authors/khadija-bibi">{EDITOR.name}</Link></span><span>Reviewed 19 August 2026</span><span>Fact checked</span></div>
         </header>
 
         <section className="siteShell productDuel" aria-label="Products being compared">
-          <div><ProductMark product={a} /><div><p>{a.shortCategory}</p><h2>{a.name}</h2></div><EditorialScore score={a.score} compact /></div>
+          <DuelSide product={a} />
           <span>versus</span>
-          <div><ProductMark product={b} /><div><p>{b.shortCategory}</p><h2>{b.name}</h2></div><EditorialScore score={b.score} compact /></div>
+          <DuelSide product={b} />
         </section>
 
         <section className="siteShell glanceVerdict">

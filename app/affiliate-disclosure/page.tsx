@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { InfoPage } from "../components/info-page";
 
-export const metadata: Metadata = { title: "Affiliate disclosure" };
+export const metadata: Metadata = {
+  alternates: { canonical: "/affiliate-disclosure" }, title: "Affiliate disclosure" };
 
 export default function AffiliateDisclosurePage() {
   return <InfoPage eyebrow="Commercial disclosure" title="How commercial links work." intro="Some links may earn the publication a commission when a reader chooses to visit or buy from a vendor. The price paid by the reader does not change." sections={[

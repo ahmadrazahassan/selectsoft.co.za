@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
+  ArrowRight,
   ArrowUpRight,
   Boxes,
   Calculator,
@@ -13,6 +14,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import type { Category, Guide, Product } from "../lib/data";
+import { categoryCount, getLogo, getPricing, getProduct, type Comparison, type Pricing } from "../lib/data";
 
 const iconMap = {
   calculator: Calculator,
@@ -37,20 +39,32 @@ export function CategoryRow({ category, index }: { category: Category; index: nu
         <p>{category.summary}</p>
       </div>
       <div className="categoryCardFooter">
-        <span>{category.count} reviews</span>
+        <span>{categoryCount(category.slug)} {categoryCount(category.slug) === 1 ? "review" : "reviews"}</span>
         <ArrowUpRight size={20} strokeWidth={1.6} aria-hidden="true" />
       </div>
     </Link>
   );
 }
 
-export function ProductMark({ product, logoSrc }: { product: Product; logoSrc?: string }) {
-  if (logoSrc) {
+export function ProductMark({
+  product,
+  logoSrc,
+  size = "default",
+}: {
+  product: Product;
+  logoSrc?: string;
+  size?: "default" | "large";
+}) {
+  // Fall back to the shared logo map so every surface shows the real mark,
+  // not just the pages that happen to pass one in.
+  const src = logoSrc ?? getLogo(product.slug);
+  const scale = size === "large" ? " productMarkLarge" : "";
+  if (src) {
     return (
-      <span className="productMark productMarkLogo">
+      <span className={`productMark productMarkLogo${scale}`}>
         <Image
           className="productLogoImage"
-          src={logoSrc}
+          src={src}
           alt={`${product.name} logo`}
           width={72}
           height={72}
@@ -59,7 +73,7 @@ export function ProductMark({ product, logoSrc }: { product: Product; logoSrc?: 
     );
   }
   return (
-    <span className={`productMark productMark${product.tone}`} aria-label={`${product.name} wordmark`}>
+    <span className={`productMark productMark${product.tone}${scale}`} aria-label={`${product.name} wordmark`}>
       {product.initials}
     </span>
   );
@@ -70,6 +84,72 @@ export function EditorialScore({ score, compact = false }: { score: number; comp
     <div className={compact ? "score scoreCompact" : "score"} aria-label={`Editorial score ${score} out of 10`}>
       <strong>{score.toFixed(1)}</strong>
       <span>out of 10</span>
+    </div>
+  );
+}
+
+/** The headline figure, sized so a long qualifier never crowds the number. */
+export function PriceTag({ price }: { price: Pricing }) {
+  return (
+    <div className="priceTag">
+      <p className="priceLead">
+        {price.entry !== "Free" && price.entry !== "On request" && (
+          <span className="priceFrom">From</span>
+        )}
+        <strong>{price.entry}</strong>
+        <span className="priceUnit">{price.unit}</span>
+      </p>
+      <p className="priceNote">{price.planNote}</p>
+      {price.fxNote ? <p className="priceFx">{price.fxNote}</p> : null}
+    </div>
+  );
+}
+
+/** Only the signals a buyer actually shortlists on. One plain check per line,
+ *  no chips and no decorative glyphs. */
+export function PriceBadges({ price }: { price: Pricing }) {
+  const badges: string[] = [];
+  if (price.freeTier) badges.push(price.freeTier);
+  if (price.trialDays) {
+    badges.push(`${price.trialDays}-day free trial`);
+  } else if (price.trialNote) {
+    badges.push(price.trialNote);
+  }
+  if (price.demo) badges.push("Demo on request");
+  if (price.ai) badges.push(price.ai);
+  if (!badges.length) return null;
+  return (
+    <ul className="priceBadges">
+      {badges.map((label) => (
+        <li key={label}>
+          <Check size={13} strokeWidth={2.4} aria-hidden="true" />
+          <span>{label}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** One half of a head-to-head. Price sits beside the score so the
+ *  comparison covers cost, not just our opinion. */
+export function DuelSide({ product }: { product: Product }) {
+  const price = getPricing(product.slug);
+  return (
+    <div className="duelSide">
+      <div className="duelSideTop">
+        <ProductMark product={product} />
+        <div>
+          <p>{product.shortCategory}</p>
+          <h2>{product.name}</h2>
+        </div>
+        <EditorialScore score={product.score} compact />
+      </div>
+      {price ? (
+        <>
+          <PriceTag price={price} />
+          <PriceBadges price={price} />
+        </>
+      ) : null}
     </div>
   );
 }
@@ -88,55 +168,190 @@ export function ReviewCard({
   const className = ["reviewCard", lead && "reviewCardLead", compact && "reviewCardCompact"]
     .filter(Boolean)
     .join(" ");
+  const price = getPricing(product.slug);
   return (
     <article className={className}>
       <div className="reviewCardTop">
         <ProductMark product={product} logoSrc={logoSrc} />
-        <EditorialScore score={product.score} compact />
+        <p className="cardMeta">{product.shortCategory}</p>
       </div>
-      <p className="cardMeta">{product.shortCategory}</p>
       <h3>
         <Link href={`/reviews/${product.slug}`}>{product.name}</Link>
       </h3>
       {!compact && <p className="reviewVerdict">{product.verdict}</p>}
-      <div className="bestFor">
-        <span>Best for</span>
-        <strong>{product.bestFor}</strong>
+      {price ? (
+        <>
+          <PriceTag price={price} />
+          <PriceBadges price={price} />
+        </>
+      ) : (
+        <div className="bestFor">
+          <span>Best for</span>
+          <strong>{product.bestFor}</strong>
+        </div>
+      )}
+      <div className="cardActions">
+        <Link className="btn btnSecondary btnCompact" href={`/reviews/${product.slug}`}>
+          Read review
+        </Link>
+        <a
+          className="btn btnPrimary btnCompact"
+          href={price?.pricingUrl ?? product.sourceUrl}
+          rel="nofollow sponsored noopener noreferrer"
+          target="_blank"
+        >
+          <span>Visit site</span>
+          <ArrowUpRight size={15} strokeWidth={2.2} aria-hidden="true" />
+        </a>
       </div>
-      <Link className="plainLink" href={`/reviews/${product.slug}`}>
-        Read review
-        {compact && <ArrowUpRight size={17} strokeWidth={1.7} aria-hidden="true" />}
+    </article>
+  );
+}
+
+/** Head to head. Uses the criteria we actually wrote, and the `view` field that
+ *  names the winner, rather than inventing scored dimensions. */
+export function ComparisonCard({ comparison }: { comparison: Comparison }) {
+  const a = getProduct(comparison.productA);
+  const b = getProduct(comparison.productB);
+  if (!a || !b) return null;
+  const priceA = getPricing(a.slug);
+  const priceB = getPricing(b.slug);
+
+  return (
+    <article className="duelCard">
+      <div className="duelCardHead">
+        <ProductMark product={a} />
+        <span className="duelVs" aria-hidden="true">vs</span>
+        <ProductMark product={b} />
+      </div>
+
+      <div className="duelCardGrid">
+        <h3>{a.name}</h3>
+        <h3>{b.name}</h3>
+        <p className="duelScore">
+          {a.score.toFixed(1)}<span> / 10</span>
+        </p>
+        <p className="duelScore">
+          {b.score.toFixed(1)}<span> / 10</span>
+        </p>
+        <p className="duelPrice">{priceA ? `${priceA.entry} ${priceA.unit}` : "See vendor"}</p>
+        <p className="duelPrice">{priceB ? `${priceB.entry} ${priceB.unit}` : "See vendor"}</p>
+      </div>
+
+      <ul className="duelCriteria">
+        {comparison.criteria.slice(0, 4).map((criterion) => (
+          <li key={criterion.name}>
+            <span>{criterion.name}</span>
+            <em className={criterion.view === "Depends" ? "duelPickEven" : "duelPick"}>
+              {criterion.view}
+            </em>
+          </li>
+        ))}
+      </ul>
+
+      <Link className="duelCta" href={`/compare/${comparison.slug}`}>
+        See full comparison
+        <ArrowRight size={16} strokeWidth={2.2} aria-hidden="true" />
       </Link>
     </article>
   );
 }
 
-export function GuideArt({ art }: { art: Guide["art"] }) {
+/** A trial tile leads on the one number that matters: how long you get. */
+export function TrialCard({ product }: { product: Product }) {
+  const price = getPricing(product.slug);
+  if (!price) return null;
+  const length = price.trialDays ? `${price.trialDays}` : "Free";
+  const unit = price.trialDays ? (price.trialDays === 1 ? "day" : "days") : "trial";
   return (
-    <div className={`guideArt guideArt${art}`} aria-hidden="true">
-      <span />
-      <span />
-      <span />
-      <span />
-    </div>
+    <article className="trialCard">
+      <div className="trialCardTop">
+        <ProductMark product={product} />
+        <div>
+          <p className="cardMeta">{product.shortCategory}</p>
+          <h3>
+            <Link href={`/reviews/${product.slug}`}>{product.name}</Link>
+          </h3>
+        </div>
+      </div>
+      <p className="trialLength">
+        <strong>{length}</strong>
+        <span>{unit}</span>
+      </p>
+      <p className="trialAfter">
+        {price.trialDays
+          ? `Then ${price.entry} ${price.unit}`
+          : `Length not published · then ${price.entry} ${price.unit}`}
+      </p>
+      <a
+        className="trialCta"
+        href={price.pricingUrl}
+        rel="nofollow sponsored noopener noreferrer"
+        target="_blank"
+      >
+        Start the trial
+        <ArrowUpRight size={15} strokeWidth={2.2} aria-hidden="true" />
+      </a>
+    </article>
   );
 }
 
+/**
+ * Two shapes from one record. The feature runs the full width of the section
+ * and splits the headline from its credits, which is how a print section front
+ * is set. The compact card carries only what a reader needs to choose.
+ */
 export function GuideCard({ guide, lead = false }: { guide: Guide; lead?: boolean }) {
-  return (
-    <article className={lead ? "guideCard guideCardLead" : "guideCard"}>
-      {lead && <GuideArt art={guide.art} />}
-      <div className="guideCardContent">
-        <p className="cardMeta cardMetaPair"><span>{guide.topic}</span><span>{guide.readTime}</span></p>
-        <h3>
-          <Link href={`/guides/${guide.slug}`}>{guide.title}</Link>
-        </h3>
-        <p>{guide.excerpt}</p>
-        <div className="guideByline">
-          <span>{guide.author}</span>
-          <span>{guide.date}</span>
+  const href = `/guides/${guide.slug}`;
+
+  if (lead) {
+    return (
+      <article className="guideFeature">
+        <div className="guideFeatureMain">
+          <p className="guideFeatureMeta">
+            <span className="guideFlag">Featured guide</span>
+            <span>{guide.topic}</span>
+          </p>
+          <h3>
+            <Link href={href}>{guide.title}</Link>
+          </h3>
         </div>
-      </div>
+        <div className="guideFeatureSide">
+          <p className="guideFeatureExcerpt">{guide.excerpt}</p>
+          <dl className="guideCredit">
+            <div>
+              <dt>Written by</dt>
+              <dd>{guide.author}</dd>
+            </div>
+            <div>
+              <dt>Published</dt>
+              <dd>{guide.date}</dd>
+            </div>
+            <div>
+              <dt>Length</dt>
+              <dd>{guide.readTime}</dd>
+            </div>
+          </dl>
+          <Link className="btn btnSecondary btnCompact guideCta" href={href}>
+            <span>Read the guide</span>
+            <ArrowUpRight size={15} strokeWidth={2.2} aria-hidden="true" />
+          </Link>
+        </div>
+      </article>
+    );
+  }
+
+  return (
+    <article className="guideCard">
+      <p className="guideTopic">{guide.topic}</p>
+      <h3>
+        <Link href={href}>{guide.title}</Link>
+      </h3>
+      <p className="guideExcerpt">{guide.excerpt}</p>
+      <p className="guideMetaFoot">
+        <span>{guide.author}</span>
+        <span>{guide.readTime}</span>
+      </p>
     </article>
   );
 }
