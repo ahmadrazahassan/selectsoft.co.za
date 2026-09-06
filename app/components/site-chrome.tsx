@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Menu, Search } from "lucide-react";
 import { liveCategories } from "../lib/data";
 import { NewsletterForm } from "./forms";
-import { publisher, siteConfig } from "../config/site";
+import { contactEmail, publisher, siteConfig } from "../config/site";
 import { ScrollHeaderShell } from "./scroll-header-shell";
 
 export function Brand() {
@@ -164,9 +164,20 @@ export function SiteFooter() {
 
           <div className="footerContactBlock">
             <p className="footerLabel">Contact</p>
-            <a className="footerEmail" href={`mailto:${publisher.email}`}>
-              {publisher.email}
+            <a className="footerEmail" href={`mailto:${contactEmail.editorial}`}>
+              {contactEmail.editorial}
             </a>
+            {/* the two a reader or a vendor is most likely to need */}
+            <ul className="footerContactMore">
+              <li>
+                <span>Corrections</span>
+                <a href={`mailto:${contactEmail.corrections}`}>{contactEmail.corrections}</a>
+              </li>
+              <li>
+                <span>Commercial</span>
+                <a href={`mailto:${contactEmail.commercial}`}>{contactEmail.commercial}</a>
+              </li>
+            </ul>
             <p className="footerPlace">{publisher.location}</p>
           </div>
 

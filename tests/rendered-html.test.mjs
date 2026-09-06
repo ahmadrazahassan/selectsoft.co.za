@@ -683,3 +683,58 @@ test("the publication name and address are consistent everywhere", async () => {
   assert.match(sitemap, /https:\/\/selectsoft\.co\.za/);
   assert.doesNotMatch(sitemap, /softwareselectza/);
 });
+
+test("contact routes are role based, real and consistent", async () => {
+  const { contactRoutes, contactEmail, publisher, siteConfig } = await import(
+    new URL("../app/config/site.ts", import.meta.url).href
+  );
+
+  assert.ok(contactRoutes.length >= 4, "expected at least four contact routes");
+  const seen = new Set();
+  for (const route of contactRoutes) {
+    assert.match(route.address, /^[a-z]+@selectsoft\.co\.za$/, `${route.address} is not on the domain`);
+    assert.equal(seen.has(route.address), false, `${route.address} is listed twice`);
+    seen.add(route.address);
+    assert.ok(route.purpose.length > 2, "a route has no purpose");
+    assert.ok(route.detail.split(/\s+/).length >= 10, `${route.address} has no real explanation`);
+  }
+
+  // the general address must be one of the published routes
+  assert.ok(seen.has(publisher.email), "the publisher email is not a published route");
+  assert.equal(publisher.email, siteConfig.email);
+
+  // editorial and commercial must be different inboxes, which is the whole point
+  assert.notEqual(contactEmail.editorial, contactEmail.commercial);
+  assert.notEqual(contactEmail.privacy, contactEmail.commercial);
+
+  // the contact page lists every route with its purpose
+  const contact = textOf(await (await render("/contact")).text());
+  for (const route of contactRoutes) {
+    assert.ok(contact.includes(route.address), `contact page omits ${route.address}`);
+    assert.match(contact, new RegExp(route.purpose), `contact page omits the ${route.purpose} label`);
+  }
+
+  // the right address is quoted in the right policy
+  const privacy = textOf(await (await render("/privacy")).text());
+  assert.ok(privacy.includes(contactEmail.privacy));
+  assert.match(privacy, /Information Officer/);
+
+  const disclosure = textOf(await (await render("/affiliate-disclosure")).text());
+  assert.ok(disclosure.includes(contactEmail.commercial));
+
+  const policy = textOf(await (await render("/editorial-policy")).text());
+  assert.ok(policy.includes(contactEmail.corrections));
+
+  const about = textOf(await (await render("/about")).text());
+  for (const address of Object.values(contactEmail)) {
+    assert.ok(about.includes(address), `about page omits ${address}`);
+  }
+
+  // and the footer carries the routes a reader or vendor needs, on every page
+  for (const path of ["/", "/reviews/xero"]) {
+    const text = textOf(await (await render(path)).text());
+    assert.ok(text.includes(contactEmail.editorial), `${path} footer omits the editorial address`);
+    assert.ok(text.includes(contactEmail.corrections), `${path} footer omits the corrections address`);
+    assert.ok(text.includes(contactEmail.commercial), `${path} footer omits the commercial address`);
+  }
+});

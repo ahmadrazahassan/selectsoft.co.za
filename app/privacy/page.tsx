@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { InfoPage } from "../components/info-page";
-import { publisher } from "../config/site";
+import { contactEmail, publisher } from "../config/site";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
@@ -16,13 +16,13 @@ export default function PrivacyPage() {
       title="Your information should stay understandable."
       intro={`This policy explains what personal information ${publisher.tradingAs} collects, why, who it reaches and how long it is kept. It is written to the Protection of Personal Information Act 4 of 2013.`}
       effective={publisher.policiesEffective}
-      footNote={`Questions about this policy, or a request to see, correct or delete your information, can be sent to ${publisher.informationOfficer} at ${publisher.email}.`}
+      footNote={`Questions about this policy, or a request to see, correct or delete your information, can be sent to ${publisher.informationOfficer} at ${contactEmail.privacy}.`}
       sections={[
         {
           title: "Who is responsible",
           paragraphs: [
             `${publisher.tradingAs} is published by ${publisher.legalName} from ${publisher.location}. ${publisher.legalName} is the responsible party for the personal information described here.`,
-            `The Information Officer is ${publisher.informationOfficer}, contactable at ${publisher.email}. Please use that address for any privacy question, request or complaint so that it reaches the right person directly.`,
+            `The Information Officer is ${publisher.informationOfficer}, contactable at ${contactEmail.privacy}. Please use that address for any privacy question, request or complaint so that it reaches the right person directly.`,
           ],
         },
         {

@@ -1824,6 +1824,91 @@ a {
   border-color: var(--black);
 }
 
+/* the secondary routes, set small under the main address */
+.footerContactMore {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.footerContactMore li {
+  display: grid;
+  gap: 1px;
+}
+
+.footerContactMore span {
+  color: rgba(16, 22, 19, 0.55);
+  font-family: var(--fontLabel), sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.footerContactMore a {
+  color: rgba(16, 22, 19, 0.82);
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+  transition: color 170ms ease;
+}
+
+.footerContactMore a:hover {
+  color: var(--black);
+}
+
+/* Contact page routing table -------------------------------- */
+
+.contactRoutes {
+  margin: clamp(28px, 3vw, 38px) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.contactRoutes li {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.contactRoutePurpose {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-family: var(--fontLabel), sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.contactRouteAddress {
+  display: inline-block;
+  color: var(--black);
+  font-family: var(--fontDisplay), sans-serif;
+  font-size: clamp(1.02rem, 1.6vw, 1.24rem);
+  font-weight: 560;
+  letter-spacing: -0.028em;
+  border-bottom: 1px solid var(--hairlineStrong);
+  padding-bottom: 2px;
+  overflow-wrap: anywhere;
+  transition: border-color 170ms ease;
+}
+
+.contactRouteAddress:hover {
+  border-color: var(--black);
+}
+
+.contactRouteDetail {
+  max-width: 62ch;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
 .footerPlace {
   margin: 10px 0 0;
   color: rgba(16, 22, 19, 0.62);

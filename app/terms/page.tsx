@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { InfoPage } from "../components/info-page";
-import { publisher } from "../config/site";
+import { contactEmail, publisher } from "../config/site";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/terms" },
@@ -16,12 +16,12 @@ export default function TermsPage() {
       title="Using this publication."
       intro={`${publisher.tradingAs} publishes independent general information about business software. It is not accounting, legal, tax or implementation advice, and it is not a substitute for advice about your own business.`}
       effective={publisher.policiesEffective}
-      footNote={`Published by ${publisher.legalName}, ${publisher.location}. Questions about these terms can be sent to ${publisher.email}.`}
+      footNote={`Published by ${publisher.legalName}, ${publisher.location}. Questions about these terms can be sent to ${contactEmail.editorial}.`}
       sections={[
         {
           title: "Who publishes this",
           paragraphs: [
-            `This website is owned and published by ${publisher.legalName}, trading as ${publisher.tradingAs}, from ${publisher.location}. Correspondence of any kind can be sent to ${publisher.email}.`,
+            `This website is owned and published by ${publisher.legalName}, trading as ${publisher.tradingAs}, from ${publisher.location}. Correspondence of any kind can be sent to ${contactEmail.editorial}.`,
             "These terms are governed by the law of the Republic of South Africa.",
           ],
         },

@@ -14,6 +14,12 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const localBindingConfig = {
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
+  // The worker reads both of these at runtime. Without them the deployed
+  // build answers pages but fails on /_next/image, because env.ASSETS and
+  // env.IMAGES are undefined. `wrangler deploy --dry-run` reports
+  // "No bindings found" when either is missing.
+  assets: { binding: "ASSETS" },
+  images: { binding: "IMAGES" },
   d1_databases: d1
     ? [
         {
