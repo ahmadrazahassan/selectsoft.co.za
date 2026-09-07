@@ -134,7 +134,8 @@ export default async function Home() {
             </p>
           </div>
           <div className="siteShell duelGrid">
-            {comparisons.map((comparison) => (
+            {/* three across, so the row stays a row as more verdicts are written */}
+            {comparisons.slice(0, 3).map((comparison) => (
               <ComparisonCard comparison={comparison} key={comparison.slug} />
             ))}
           </div>

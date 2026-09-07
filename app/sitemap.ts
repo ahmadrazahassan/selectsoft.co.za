@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { comparisons, getPricing, guides, liveCategories, products } from "./lib/data";
+import { categoryPairs, hasCheckedPrice, hasScoredDimensions } from "./lib/compare";
 import { siteConfig } from "./config/site";
 
 /**
@@ -58,10 +59,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),
-    ...comparisons.map((item) => ({
-      url: `${base}/compare/${item.slug}`,
-      changeFrequency: "monthly" as const,
-      priority: 0.8,
-    })),
+    // Every same category pair is a real page. A pair with a written verdict
+    // keeps that slug, so nothing is listed twice. Pairs where both sides have
+    // been scored and priced rank above the thinner ones.
+    ...categoryPairs().map((pair) => {
+      const deep =
+        hasScoredDimensions(pair.a.slug) &&
+        hasScoredDimensions(pair.b.slug) &&
+        hasCheckedPrice(pair.a.slug) &&
+        hasCheckedPrice(pair.b.slug);
+      const isWritten = comparisons.some((item) => item.slug === pair.slug);
+      return {
+        url: `${base}/compare/${pair.slug}`,
+        changeFrequency: "monthly" as const,
+        priority: isWritten ? 0.8 : deep ? 0.7 : 0.5,
+      };
+    }),
   ];
 }

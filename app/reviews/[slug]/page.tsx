@@ -27,7 +27,7 @@ import {
 } from "../../components/review-charts";
 import { CostCurve, PriceRanking } from "../../components/cost-charts";
 import { PageShell } from "../../components/site-chrome";
-import { EDITOR, getPricing, getProduct, pricedOn, products } from "../../lib/data";
+import { EDITOR, getPricing, getProduct, isoDate, pricedOn, products } from "../../lib/data";
 import { hasRatings } from "../../lib/ratings";
 import { siteConfig } from "../../config/site";
 import { RatingCitations } from "../../components/ratings";
@@ -101,7 +101,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ slug: s
           },
           author: { "@type": "Person", name: EDITOR.name },
           publisher: { "@type": "Organization", name: siteConfig.name },
-          datePublished: product.reviewed,
+          datePublished: isoDate(product.reviewed),
           reviewBody: detail?.finalView ?? product.verdict,
         },
       },

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "../../components/editorial";
 import { PageShell } from "../../components/site-chrome";
-import { EDITOR, getGuide, getProduct, guides } from "../../lib/data";
+import { EDITOR, getGuide, getProduct, guides, isoDate } from "../../lib/data";
 import { guideContent } from "../../lib/guide-content";
 import { siteConfig } from "../../config/site";
 
@@ -52,7 +52,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         "@type": "Article",
         headline: guide.title,
         description: guide.excerpt,
-        datePublished: guide.date,
+        datePublished: isoDate(guide.date),
         author: { "@type": "Person", name: EDITOR.name, url: `${siteConfig.url}/authors/khadija-bibi` },
         publisher: { "@type": "Organization", name: siteConfig.name, url: siteConfig.url },
         mainEntityOfPage: url,

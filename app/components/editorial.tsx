@@ -130,30 +130,6 @@ export function PriceBadges({ price }: { price: Pricing }) {
   );
 }
 
-/** One half of a head-to-head. Price sits beside the score so the
- *  comparison covers cost, not just our opinion. */
-export function DuelSide({ product }: { product: Product }) {
-  const price = getPricing(product.slug);
-  return (
-    <div className="duelSide">
-      <div className="duelSideTop">
-        <ProductMark product={product} />
-        <div>
-          <p>{product.shortCategory}</p>
-          <h2>{product.name}</h2>
-        </div>
-        <EditorialScore score={product.score} compact />
-      </div>
-      {price ? (
-        <>
-          <PriceTag price={price} />
-          <PriceBadges price={price} />
-        </>
-      ) : null}
-    </div>
-  );
-}
-
 export function ReviewCard({
   product,
   lead = false,

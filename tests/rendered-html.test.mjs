@@ -82,6 +82,80 @@ test("renders a published comparison", async () => {
   assert.match(text, /Where each product stands/);
 });
 
+test("any pair of products produces a real comparison", async () => {
+  // The whole point of the rebuild: picking two products must never land on an
+  // apology. This pair has no written verdict, so it exercises the generator.
+  const response = await render("/compare/quickbooks-online-vs-zoho-books");
+  assert.equal(response.status, 200);
+  const text = textOf(await response.text());
+
+  assert.match(text, /QuickBooks Online vs Zoho Books/);
+  // the four sections that make it a comparison rather than two summaries
+  assert.match(text, /What the record adds up to/);
+  assert.match(text, /Where the difference actually sits/);
+  assert.match(text, /What each vendor commits to/);
+  assert.match(text, /How each one behaves in South Africa/);
+  // scores are stated, not implied
+  assert.match(text, /8\.0/);
+  assert.match(text, /8\.3/);
+  // and the page says where the figures come from
+  assert.match(text, /assembled from our two reviews/);
+  assert.doesNotMatch(text, /no published editorial verdict/);
+});
+
+test("a pair only ever answers on one url", async () => {
+  // Both orders would otherwise be indexable copies of the same page.
+  const forward = await render("/compare/quickbooks-online-vs-zoho-books");
+  const reversed = await render("/compare/zoho-books-vs-quickbooks-online");
+  assert.equal(forward.status, 200);
+  assert.equal(reversed.status, 404);
+
+  // A written verdict keeps its own slug and gains no alphabetical twin.
+  assert.equal((await render("/compare/sage-accounting-vs-xero")).status, 200);
+  assert.equal((await render("/compare/xero-vs-sage-accounting")).status, 404);
+
+  // Nonsense and self comparisons are not pages.
+  assert.equal((await render("/compare/xero-vs-xero")).status, 404);
+  assert.equal((await render("/compare/not-a-product-vs-xero")).status, 404);
+
+  const html = await forward.text();
+  assert.match(html, /rel="canonical" href="[^"]*\/compare\/quickbooks-online-vs-zoho-books"/);
+});
+
+test("a comparison never prints a number it has not verified", async () => {
+  // Omni Accounts is quoted rather than published on a comparable basis, so
+  // the engine must refuse to subtract instead of inventing a gap.
+  const text = textOf(await (await render("/compare/omni-accounts-vs-sage-accounting")).text());
+  assert.match(text, /cannot be subtracted honestly/);
+  assert.doesNotMatch(text, /the gap is about R0/);
+
+  // A comparable pair does state the three year gap, so the guard above is
+  // proving a real branch rather than passing because nothing ever prints.
+  const priced = textOf(await (await render("/compare/quickbooks-online-vs-zoho-books")).text());
+  assert.match(priced, /over three years at the standing rate the gap is about R/);
+
+  // No dimension may render as a zero, which is what a missing score would be.
+  assert.doesNotMatch(priced, /Everyday use[^<]*0\.0/);
+});
+
+test("the compare index offers every pair, grouped by category", async () => {
+  const response = await render("/compare");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  const text = textOf(html);
+
+  const links = new Set([...html.matchAll(/\/compare\/([a-z0-9-]+)"/g)].map((m) => m[1]));
+  // 29 products across five live categories: 36 + 15 + 15 + 6 + 6 pairs.
+  assert.equal(links.size, 78, `expected 78 pairs, found ${links.size}`);
+  assert.ok(links.has("sage-accounting-vs-xero"), "a written verdict is missing from the index");
+  assert.match(text, /78 comparisons ready across 5 categories/);
+
+  // The picker must not offer a route that does not exist.
+  for (const slug of ["sage-accounting-vs-xero", "sage-hr-vs-simplepay"]) {
+    assert.equal((await render(`/compare/${slug}`)).status, 200, `${slug} is linked but does not render`);
+  }
+});
+
 test("every product carries a verified price and an outbound link", async () => {
   const response = await render();
   assert.equal(response.status, 200);
@@ -209,6 +283,32 @@ test("review prose uses no hyphens or dashes", async () => {
     }
   });
   assert.deepEqual(offenders, []);
+
+  // The comparison records live in data.ts and carry the same rule.
+  const data = await readFile(new URL("../app/lib/data.ts", import.meta.url), "utf8");
+  const comparisonBody = data.slice(data.indexOf("export const comparisons"));
+  const dataOffenders = [];
+  comparisonBody.split(/\r?\n/).forEach((line, i) => {
+    for (const text of [...line.matchAll(/"([^"]*)"/g)].map((m) => m[1])) {
+      if (/^[a-z0-9-]+$/.test(text)) continue;
+      const bad = text.match(/[‐-―−]|(?<=\w)-(?=\w)/);
+      if (bad) dataOffenders.push(`data.ts comparisons line ${i + 1}: "${text.slice(0, 70)}"`);
+    }
+  });
+  assert.deepEqual(dataOffenders, []);
+
+  // And the rule has to survive into what a reader actually sees, including
+  // the sentences the comparison engine assembles at render time.
+  for (const path of [
+    "/compare",
+    "/compare/yoco-vs-ikhokha",
+    "/compare/quickbooks-online-vs-zoho-books",
+    "/compare/omni-accounts-vs-sage-accounting",
+  ]) {
+    const text = textOf(await (await render(path)).text());
+    const bad = text.match(/[‐-―−]/);
+    assert.equal(bad, null, `${path} renders ${bad && bad[0]} in its prose`);
+  }
 });
 
 test("headline scores are the mean of a written breakdown", async () => {

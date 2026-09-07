@@ -38,12 +38,25 @@ export type Guide = {
   art: "ledger" | "people" | "pipeline" | "operations" | "privacy";
 };
 
+/**
+ * Editorial dates are written the way a reader reads them, "19 August 2026".
+ * Structured data has to be ISO 8601 or a crawler is entitled to ignore it,
+ * so every schema block converts through here rather than emitting the prose.
+ */
+export function isoDate(value: string) {
+  const parsed = new Date(`${value} UTC`);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString().slice(0, 10);
+}
+
 export type Comparison = {
   slug: string;
   productA: string;
   productB: string;
   title: string;
   summary: string;
+  /** The day the verdict was written, so the byline never claims a date that
+   *  belongs to a different piece of work. */
+  reviewed: string;
   verdict: string;
   criteria: { name: string; a: string; b: string; view: string }[];
 };
@@ -2165,6 +2178,7 @@ export const comparisons: Comparison[] = [
     slug: "xero-vs-quickbooks-online",
     productA: "xero",
     productB: "quickbooks-online",
+    reviewed: "19 August 2026",
     title: "Xero compared with QuickBooks Online",
     summary:
       "Two familiar cloud accounting choices, compared on the work that matters to a South African small business.",
@@ -2182,6 +2196,7 @@ export const comparisons: Comparison[] = [
     slug: "sage-accounting-vs-xero",
     productA: "sage-accounting",
     productB: "xero",
+    reviewed: "19 August 2026",
     title: "Sage Accounting compared with Xero",
     summary:
       "A local stalwart and a polished cloud platform, assessed for support, reporting, collaboration and day to day fit.",
@@ -2196,9 +2211,67 @@ export const comparisons: Comparison[] = [
     ],
   },
   {
+    slug: "sage-payroll-vs-simplepay",
+    productA: "sage-business-cloud-payroll",
+    productB: "simplepay",
+    reviewed: "7 September 2026",
+    title: "Sage Payroll compared with SimplePay",
+    summary:
+      "Two South African payroll products that both handle the statutory work properly. The real difference is how they charge and what happens the month you hire.",
+    verdict:
+      "Both maintain PAYE, UIF and SDL for you and both are built for South African statutory reality, so this is not a compliance decision. It is a pricing and integration decision. SimplePay charges about R23.55 per employee, so the bill follows the payroll exactly and nothing jumps when headcount moves, and it posts the payroll journal straight into Xero or QuickBooks. Sage Payroll charges in headcount bands, which is easy to budget but steps up at a threshold, and every band carries unlimited companies and unlimited users. If you run one payroll that grows during the year, SimplePay. If you run several small payrolls in a bookkeeping practice, Sage Payroll.",
+    criteria: [
+      { name: "How you are charged", a: "Headcount bands from R97 a month", b: "About R23.55 per employee a month", view: "Model it at your headcount" },
+      { name: "The month you hire", a: "The fee steps up at a band edge", b: "The bill rises by one employee", view: "SimplePay" },
+      { name: "Statutory updates", a: "Maintained for you", b: "Maintained for you", view: "Line ball" },
+      { name: "Reconciliation season", a: "Statutory reports included", b: "IRP5 and IT3(a) export in the format e@syFile expects", view: "SimplePay" },
+      { name: "Posting to the ledger", a: "Clean path into Sage Accounting", b: "Posts directly into Xero and QuickBooks", view: "Whichever matches your ledger" },
+      { name: "Several companies", a: "Unlimited companies on every band", b: "Priced per employee across the whole payroll", view: "Sage Payroll" },
+    ],
+  },
+  {
+    slug: "yoco-vs-ikhokha",
+    productA: "yoco",
+    productB: "ikhokha",
+    reviewed: "7 September 2026",
+    title: "Yoco compared with iKhokha",
+    summary:
+      "The two card machines a South African trader actually chooses between, judged on the rate, the cost of a quiet month and who answers at night.",
+    verdict:
+      "This one is arithmetic rather than features. Neither charges monthly rental on its entry plan, both sell the machine outright from R699, and both step the rate down as turnover grows. Yoco starts lower at about 2.30 percent in person and falls as far as 1.20 percent at volume, so on rate alone it wins. iKhokha answers the phone twenty four hours a day on phone and WhatsApp, and iK Tap on Phone needs no hardware at all, which matters if you are starting with nothing. Work out your blended rate at your real monthly card turnover across both, then, once that turnover is substantial, get a quote from a bank acquirer too, because at that point the rate difference outweighs the convenience.",
+    criteria: [
+      { name: "Cost of a quiet month", a: "R0 on Core", b: "No monthly rental on any machine", view: "Line ball" },
+      { name: "Entry rate", a: "About 2.30 percent in person", b: "2.75 percent excluding VAT", view: "Yoco" },
+      { name: "Rate at volume", a: "Falls to about 1.20 percent", b: "Falls to 2.5 percent above R80 000 a month", view: "Yoco" },
+      { name: "Starting with nothing", a: "Machines from R699", b: "Machines from R699, or Tap on Phone with none", view: "iKhokha" },
+      { name: "Support", a: "Local support", b: "Twenty four hours a day on phone and WhatsApp", view: "iKhokha" },
+      { name: "Settlement", a: "Next day", b: "Next business day, or twice a day with Nedbank or the iK card", view: "Depends on your bank" },
+    ],
+  },
+  {
+    slug: "sage-pastel-vs-sage-accounting",
+    productA: "sage-pastel-accounting",
+    productB: "sage-accounting",
+    reviewed: "7 September 2026",
+    title: "Sage Pastel Partner compared with Sage Accounting",
+    summary:
+      "The desktop package most South African bookkeepers already know, against the Sage cloud ledger, for anyone weighing up whether to move.",
+    verdict:
+      "Both score 8.3 and both are Sage, so this is not a question of quality. Pastel Partner keeps the data on your own machine, carries multi currency, inventory and job costing without moving up to an ERP, and can be opened by almost any accounting practice in the country. Sage Accounting runs in a browser, publishes its price at R240 a month, and gives your accountant a login rather than a backup file. Let stock, job costing or where the data sits decide it for Pastel. Let remote working and a published price decide it for Sage Accounting, and confirm your specific bank feed works before you sign.",
+    criteria: [
+      { name: "How you buy it", a: "On request through a Sage business partner", b: "Published, from R240 a month incl. VAT", view: "Sage Accounting" },
+      { name: "Where the data sits", a: "Your own machine or server", b: "Hosted by Sage", view: "Depends on your board" },
+      { name: "Stock and job costing", a: "Deep, without moving to an ERP", b: "Billed on top of the plan", view: "Pastel Partner" },
+      { name: "Working away from the office", a: "Needs hosting or a terminal server", b: "Browser based, nothing to install", view: "Sage Accounting" },
+      { name: "Month end with your accountant", a: "Send them a backup file", b: "Your accountant gets their own login", view: "Sage Accounting" },
+      { name: "Bookkeepers who know it", a: "An enormous local pool", b: "More than any other cloud ledger", view: "Pastel Partner" },
+    ],
+  },
+  {
     slug: "hubspot-crm-vs-zoho-crm",
     productA: "hubspot-crm",
     productB: "zoho-crm",
+    reviewed: "19 August 2026",
     title: "HubSpot CRM compared with Zoho CRM",
     summary:
       "An easy starting point meets a flexible value choice in this practical CRM comparison.",
