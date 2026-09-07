@@ -86,3 +86,16 @@ export const contactEmail = {
   commercial: route("Commercial"),
   privacy: route("Privacy"),
 } as const;
+
+/**
+ * Ownership verification tokens for the affiliate and search networks we have
+ * applied to. Each network reads a specific attribute, and Impact reads
+ * `value` rather than the usual `content`, so the tag in the root layout is
+ * written the way they specify rather than the way a meta tag usually looks.
+ * Removing one of these fails that network's re-verification, so leave them in
+ * place after approval.
+ */
+export const siteVerification = {
+  /** Impact, the network Sage runs its affiliate programme on. */
+  impact: "80d5892e-339f-48cf-b88c-783dde2ee3b3",
+} as const;

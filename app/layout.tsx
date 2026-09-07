@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
-import { publisher, siteConfig } from "./config/site";
+import { publisher, siteConfig, siteVerification } from "./config/site";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
@@ -48,6 +48,11 @@ export default function RootLayout({
   return (
     <html lang="en-ZA">
       <head>
+        {/* Impact checks ownership by reading `value`, not `content`, so this
+            tag is written exactly as their console specifies. It sits in the
+            root layout rather than the homepage alone, so a re-verification
+            against any URL on the site still passes. */}
+        <meta name="impact-site-verification" value={siteVerification.impact} />
         {/* next/font emits no CSS under vinext, so the families are linked
             directly and the custom properties are declared in globals.css. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

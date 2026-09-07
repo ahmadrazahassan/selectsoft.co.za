@@ -203,6 +203,23 @@ test("the compare index offers every pair, grouped by category", async () => {
   }
 });
 
+test("the affiliate network can still verify that we own the site", async () => {
+  // Impact reads `value`, not `content`. A well meaning tidy up that rewrites
+  // this tag to look like a normal meta tag silently fails re-verification and
+  // takes the affiliate programme with it.
+  const { siteVerification } = await import("../app/config/site.ts");
+  const token = siteVerification.impact;
+  assert.match(token, /^[0-9a-f-]{36}$/, "the Impact token is not a uuid");
+
+  for (const path of ["/", "/compare", "/reviews/xero"]) {
+    const html = await (await render(path)).text();
+    const tag = html.match(/<meta[^>]*impact-site-verification[^>]*>/);
+    assert.ok(tag, `${path} carries no Impact verification tag`);
+    assert.ok(tag[0].includes(`value="${token}"`), `${path} does not carry the token in value=`);
+    assert.ok(!tag[0].includes("content="), `${path} rewrote the tag to use content=, which Impact ignores`);
+  }
+});
+
 test("every product carries a verified price and an outbound link", async () => {
   const response = await render();
   assert.equal(response.status, 200);
