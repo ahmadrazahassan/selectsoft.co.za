@@ -1012,6 +1012,8 @@ a {
    ============================================================ */
 
 .newsletterStrip {
+  /* clears the sticky header when a signup link lands on it */
+  scroll-margin-top: 110px;
   padding: clamp(38px, 4.4vw, 62px) 0;
   border-top: 1px solid var(--line);
   background: var(--page);

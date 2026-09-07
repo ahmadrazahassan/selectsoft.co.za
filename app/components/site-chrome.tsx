@@ -79,7 +79,7 @@ export function SiteHeader() {
  */
 export function NewsletterStrip() {
   return (
-    <section className="newsletterStrip" aria-labelledby="newsletterStripTitle">
+    <section id="newsletter" className="newsletterStrip" aria-labelledby="newsletterStripTitle">
       <div className="siteShell newsletterStripInner">
         <div className="newsletterStripCopy">
           <h2 id="newsletterStripTitle">One useful email a month.</h2>
