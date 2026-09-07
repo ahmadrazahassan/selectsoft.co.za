@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowUpRight, Check, Minus } from "lucide-react";
 import { ProductMark } from "./editorial";
-import { getPricing, pricedOn } from "../lib/data";
-import type { GeneratedComparison } from "../lib/compare";
+import { getPricing, pricedOn, type Product } from "../lib/data";
+import type { GeneratedComparison, SideNarrative } from "../lib/compare";
 
 /* ---------------------------------------------------------------------------
  * The head to head itself. Every figure here comes from the two product
@@ -25,6 +25,28 @@ function Verdict({ side, a, b }: { side: "a" | "b" | "tie"; a: string; b: string
       <Check size={13} strokeWidth={2.6} aria-hidden="true" />
       {side === "a" ? a : b}
     </span>
+  );
+}
+
+/** A table column belongs to a product, so it carries the product's mark. */
+function ColumnHead({ product }: { product: Product }) {
+  return (
+    <th scope="col" className="duelColHead">
+      <span className="duelColMark">
+        <ProductMark product={product} />
+      </span>
+      <span>{product.name}</span>
+    </th>
+  );
+}
+
+/** The two column blocks below all lead with the mark, for the same reason. */
+function SideHeading({ product }: { product: Product }) {
+  return (
+    <h3 className="duelSideHeading">
+      <ProductMark product={product} />
+      <span>{product.name}</span>
+    </h3>
   );
 }
 
@@ -67,15 +89,66 @@ export function ComparisonHead({ comparison }: { comparison: GeneratedComparison
   );
 }
 
+/** Jump nav, because a full comparison is long by design. */
+export function ComparisonNav({ comparison }: { comparison: GeneratedComparison }) {
+  const { dimensions, narrative, price } = comparison;
+  const items = [
+    { id: "summary", label: "The short answer" },
+    ...(dimensions.length ? [{ id: "scores", label: "Scores" }] : []),
+    { id: "facts", label: "Checked facts" },
+    ...(price.aChecked && price.bChecked ? [{ id: "cost", label: "What it costs" }] : []),
+    ...(narrative.a.capabilities.length && narrative.b.capabilities.length
+      ? [{ id: "capability", label: "What each one does" }]
+      : []),
+    ...(narrative.a.implementation && narrative.b.implementation
+      ? [{ id: "setup", label: "Setup and support" }]
+      : []),
+    { id: "balance", label: "Strengths and limits" },
+    { id: "local", label: "South African view" },
+    ...(narrative.a.finalView && narrative.b.finalView
+      ? [{ id: "verdict", label: "Closing judgement" }]
+      : []),
+  ];
+
+  return (
+    <nav className="duelNav siteShell" aria-label="Sections of this comparison">
+      {items.map((item) => (
+        <a key={item.id} href={`#${item.id}`}>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+function CapabilityList({ narrative }: { narrative: SideNarrative }) {
+  return (
+    <dl className="duelCapabilities">
+      {narrative.capabilities.map((item) => (
+        <div key={item.name}>
+          <dt>{item.name}</dt>
+          <dd>{item.detail}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export function ComparisonBody({ comparison }: { comparison: GeneratedComparison }) {
-  const { a, b, dimensions, facts, price, trial, demo, takeaways } = comparison;
+  const { a, b, dimensions, facts, price, trial, demo, takeaways, narrative } = comparison;
   const pa = getPricing(a.slug);
   const pb = getPricing(b.slug);
   const bothPriced = Boolean(pa && pb);
+  const bothCapabilities =
+    narrative.a.capabilities.length > 0 && narrative.b.capabilities.length > 0;
+  const bothSetup = Boolean(narrative.a.implementation && narrative.b.implementation);
+  const bothSupport = Boolean(narrative.a.support && narrative.b.support);
+  const bothPricingView = Boolean(narrative.a.pricingView && narrative.b.pricingView);
+  const bothFinalView = Boolean(narrative.a.finalView && narrative.b.finalView);
 
   return (
     <>
-      <section className="siteShell duelSection">
+      <section className="siteShell duelSection" id="summary">
         <p className="sectionChip">The short answer</p>
         <h2>What the record adds up to</h2>
         <ul className="duelTakeaways">
@@ -86,7 +159,7 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
       </section>
 
       {dimensions.length > 0 && (
-        <section className="siteShell duelSection">
+        <section className="siteShell duelSection" id="scores">
           <p className="sectionChip">Scored side by side</p>
           <h2>Where the difference actually sits</h2>
           <div className="duelScrollWrap">
@@ -97,8 +170,8 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
               <thead>
                 <tr>
                   <th scope="col">Dimension</th>
-                  <th scope="col">{a.name}</th>
-                  <th scope="col">{b.name}</th>
+                  <ColumnHead product={a} />
+                  <ColumnHead product={b} />
                   <th scope="col">Our view</th>
                 </tr>
               </thead>
@@ -120,7 +193,8 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
                     <th scope="row">
                       {row.name}
                       <span className="duelWhy">
-                        {row.winner === "b" ? b.name : a.name}: {row.winner === "b" ? row.bNote : row.aNote}
+                        {row.winner === "b" ? b.name : a.name}:{" "}
+                        {row.winner === "b" ? row.bNote : row.aNote}
                       </span>
                     </th>
                     <td className={row.winner === "a" ? "duelWin" : undefined}>{row.a.toFixed(1)}</td>
@@ -141,7 +215,7 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
         </section>
       )}
 
-      <section className="siteShell duelSection">
+      <section className="siteShell duelSection" id="facts">
         <p className="sectionChip">Checked facts</p>
         <h2>What each vendor commits to</h2>
         <div className="duelScrollWrap">
@@ -154,8 +228,8 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
                 <th scope="col">
                   <span className="visuallyHidden">Attribute</span>
                 </th>
-                <th scope="col">{a.name}</th>
-                <th scope="col">{b.name}</th>
+                <ColumnHead product={a} />
+                <ColumnHead product={b} />
               </tr>
             </thead>
             <tbody>
@@ -172,7 +246,7 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
       </section>
 
       {bothPriced && (
-        <section className="siteShell duelSection">
+        <section className="siteShell duelSection" id="cost">
           <p className="sectionChip">What it costs</p>
           <h2>Price, on the same basis or not at all</h2>
           <div className="duelScrollWrap">
@@ -183,8 +257,8 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
                   <th scope="col">
                     <span className="visuallyHidden">Attribute</span>
                   </th>
-                  <th scope="col">{a.name}</th>
-                  <th scope="col">{b.name}</th>
+                  <ColumnHead product={a} />
+                  <ColumnHead product={b} />
                 </tr>
               </thead>
               <tbody>
@@ -224,6 +298,11 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
                   <td>{demo.a}</td>
                   <td>{demo.b}</td>
                 </tr>
+                <tr>
+                  <th scope="row">Named AI feature</th>
+                  <td>{pa?.ai ?? "None advertised"}</td>
+                  <td>{pb?.ai ?? "None advertised"}</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -236,25 +315,127 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
               are excluded because they depend on your own configuration.
             </p>
           )}
+
+          {bothPricingView && (
+            <div className="duelLocal duelLocalTight">
+              <div>
+                <SideHeading product={a} />
+                <p>{narrative.a.pricingView}</p>
+              </div>
+              <div>
+                <SideHeading product={b} />
+                <p>{narrative.b.pricingView}</p>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
       {!bothPriced && price.reason && (
-        <section className="siteShell duelSection">
+        <section className="siteShell duelSection" id="cost">
           <p className="sectionChip">What it costs</p>
           <h2>Price</h2>
           <p className="duelPriceNote">{price.reason}</p>
         </section>
       )}
 
-      <section className="siteShell duelSection">
+      {bothCapabilities && (
+        <section className="siteShell duelSection" id="capability">
+          <p className="sectionChip">Capability</p>
+          <h2>What each one actually does</h2>
+          <p className="duelIntro">
+            The capabilities we tested in each review, written out rather than
+            reduced to ticks in a grid. A tick tells you a feature exists. It
+            does not tell you whether it is any good.
+          </p>
+          <div className="duelLocal">
+            <div>
+              <SideHeading product={a} />
+              <CapabilityList narrative={narrative.a} />
+            </div>
+            <div>
+              <SideHeading product={b} />
+              <CapabilityList narrative={narrative.b} />
+            </div>
+          </div>
+
+          <div className="duelScrollWrap duelFeatureWrap">
+            <table className="duelTable duelTableFacts">
+              <caption className="visuallyHidden">Modules each product covers</caption>
+              <thead>
+                <tr>
+                  <th scope="col">
+                    <span className="visuallyHidden">Attribute</span>
+                  </th>
+                  <ColumnHead product={a} />
+                  <ColumnHead product={b} />
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Covers</th>
+                  <td>
+                    <ul className="duelChips">
+                      {narrative.a.features.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </td>
+                  <td>
+                    <ul className="duelChips">
+                      {narrative.b.features.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {(bothSetup || bothSupport) && (
+        <section className="siteShell duelSection" id="setup">
+          <p className="sectionChip">Getting it running</p>
+          <h2>Setup, and who answers when it breaks</h2>
+          {bothSetup && (
+            <div className="duelLocal">
+              <div>
+                <SideHeading product={a} />
+                <p className="duelSubLabel">What it takes to start</p>
+                <p>{narrative.a.implementation}</p>
+                {bothSupport && (
+                  <>
+                    <p className="duelSubLabel">When something breaks</p>
+                    <p>{narrative.a.support}</p>
+                  </>
+                )}
+              </div>
+              <div>
+                <SideHeading product={b} />
+                <p className="duelSubLabel">What it takes to start</p>
+                <p>{narrative.b.implementation}</p>
+                {bothSupport && (
+                  <>
+                    <p className="duelSubLabel">When something breaks</p>
+                    <p>{narrative.b.support}</p>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      <section className="siteShell duelSection" id="balance">
         <p className="sectionChip">Strengths and limits</p>
         <h2>Where each one gives ground</h2>
         <div className="duelLocal">
           <div>
-            <h3>{a.name}</h3>
+            <SideHeading product={a} />
             <ul className="duelPros">
-              {a.pros.slice(0, 3).map((item) => (
+              {a.pros.map((item) => (
                 <li key={item}>
                   <Check size={14} strokeWidth={2.4} aria-hidden="true" />
                   <span>{item}</span>
@@ -262,7 +443,7 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
               ))}
             </ul>
             <ul className="duelCons">
-              {a.cons.slice(0, 3).map((item) => (
+              {a.cons.map((item) => (
                 <li key={item}>
                   <Minus size={14} strokeWidth={2.4} aria-hidden="true" />
                   <span>{item}</span>
@@ -271,9 +452,9 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
             </ul>
           </div>
           <div>
-            <h3>{b.name}</h3>
+            <SideHeading product={b} />
             <ul className="duelPros">
-              {b.pros.slice(0, 3).map((item) => (
+              {b.pros.map((item) => (
                 <li key={item}>
                   <Check size={14} strokeWidth={2.4} aria-hidden="true" />
                   <span>{item}</span>
@@ -281,7 +462,7 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
               ))}
             </ul>
             <ul className="duelCons">
-              {b.cons.slice(0, 3).map((item) => (
+              {b.cons.map((item) => (
                 <li key={item}>
                   <Minus size={14} strokeWidth={2.4} aria-hidden="true" />
                   <span>{item}</span>
@@ -292,20 +473,43 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
         </div>
       </section>
 
-      <section className="siteShell duelSection">
+      <section className="siteShell duelSection" id="local">
         <p className="sectionChip">Local view</p>
         <h2>How each one behaves in South Africa</h2>
         <div className="duelLocal">
           <div>
-            <h3>{a.name}</h3>
+            <SideHeading product={a} />
             <p>{a.localView}</p>
           </div>
           <div>
-            <h3>{b.name}</h3>
+            <SideHeading product={b} />
             <p>{b.localView}</p>
           </div>
         </div>
       </section>
+
+      {bothFinalView && (
+        <section className="siteShell duelSection" id="verdict">
+          <p className="sectionChip">Closing judgement</p>
+          <h2>What we said about each one</h2>
+          <div className="duelLocal">
+            <div>
+              <SideHeading product={a} />
+              <p>{narrative.a.finalView}</p>
+              <Link className="plainLink" href={`/reviews/${a.slug}`}>
+                Read the full {a.name} review
+              </Link>
+            </div>
+            <div>
+              <SideHeading product={b} />
+              <p>{narrative.b.finalView}</p>
+              <Link className="plainLink" href={`/reviews/${b.slug}`}>
+                Read the full {b.name} review
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="siteShell duelSection duelActions">
         <div className="duelActionRow">

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Breadcrumbs } from "../components/editorial";
+import { Breadcrumbs, ProductMark } from "../components/editorial";
 import { CompareBuilder } from "../components/compare-builder";
 import { PageShell } from "../components/site-chrome";
 import { siteConfig } from "../config/site";
@@ -39,13 +39,11 @@ export default async function ComparePage() {
     }))
     .filter((group) => group.pairs.length > 0);
 
-  const written = comparisons
-    .map((item) => ({
-      item,
-      a: getProduct(item.productA),
-      b: getProduct(item.productB),
-    }))
-    .filter((entry) => entry.a && entry.b);
+  const written = comparisons.flatMap((item) => {
+    const a = getProduct(item.productA);
+    const b = getProduct(item.productB);
+    return a && b ? [{ item, a, b }] : [];
+  });
 
   const schema = {
     "@context": "https://schema.org",
@@ -101,6 +99,10 @@ export default async function ComparePage() {
           {written.map((entry, index) => (
             <Link href={`/compare/${entry.item.slug}`} key={entry.item.slug}>
               <span>{String(index + 1).padStart(2, "0")}</span>
+              <span className="comparisonCardMarks">
+                <ProductMark product={entry.a} />
+                <ProductMark product={entry.b} />
+              </span>
               <h3>{entry.item.title}</h3>
               <p>{entry.item.summary}</p>
               <strong>Read comparison</strong>
@@ -124,11 +126,17 @@ export default async function ComparePage() {
             {group.pairs.map((pair) => (
               <li key={pair.slug}>
                 <Link href={`/compare/${pair.slug}`}>
-                  <span className="comparePairNames">
-                    {pair.a.name} <em>vs</em> {pair.b.name}
+                  <span className="comparePairMarks">
+                    <ProductMark product={pair.a} />
+                    <ProductMark product={pair.b} />
                   </span>
-                  <span className="comparePairMeta">
-                    {pair.a.score.toFixed(1)} against {pair.b.score.toFixed(1)}
+                  <span className="comparePairText">
+                    <span className="comparePairNames">
+                      {pair.a.name} <em>vs</em> {pair.b.name}
+                    </span>
+                    <span className="comparePairMeta">
+                      {pair.a.score.toFixed(1)} against {pair.b.score.toFixed(1)}
+                    </span>
                   </span>
                 </Link>
               </li>

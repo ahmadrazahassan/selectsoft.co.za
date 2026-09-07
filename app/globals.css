@@ -5057,6 +5057,8 @@ a {
 
 .duelSection {
   padding-block: clamp(40px, 4vw, 62px);
+  /* clears the sticky header when the jump rail lands on a section */
+  scroll-margin-top: 110px;
 }
 
 .duelSection + .duelSection {
@@ -5327,6 +5329,214 @@ a {
   text-transform: uppercase;
 }
 
+/* the jump rail, because a full comparison is long on purpose */
+.duelNav {
+  margin-top: 8px;
+  padding-bottom: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.duelNav a {
+  padding: 9px 15px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--fontLabel), sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition:
+    border-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.duelNav a:hover {
+  border-color: var(--hairlineStrong);
+  color: var(--black);
+}
+
+/* a product column is labelled by its mark as well as its name */
+.duelColHead {
+  min-width: 190px;
+}
+
+.duelColMark {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.duelColMark .productMark {
+  width: 40px;
+  height: 32px;
+}
+
+.duelColMark .productMarkLogo {
+  width: 40px;
+  height: 40px;
+  border: 0;
+}
+
+.duelColMark .productLogoImage {
+  width: 38px;
+  height: 38px;
+  object-position: left center;
+}
+
+.duelSideHeading {
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--black);
+  font-family: var(--fontDisplay), sans-serif;
+  font-size: 1.3rem;
+  font-weight: 560;
+  letter-spacing: -0.02em;
+}
+
+.duelSideHeading .productMark {
+  flex: none;
+  width: 42px;
+  height: 34px;
+}
+
+.duelSideHeading .productMarkLogo {
+  width: 42px;
+  height: 42px;
+  border: 0;
+}
+
+.duelSideHeading .productLogoImage {
+  width: 40px;
+  height: 40px;
+  object-position: left center;
+}
+
+.duelIntro {
+  max-width: 780px;
+  margin: 0 0 26px;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.duelCapabilities {
+  margin: 0;
+}
+
+.duelCapabilities > div + div {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.duelCapabilities dt {
+  margin: 0 0 6px;
+  color: var(--black);
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.duelCapabilities dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
+.duelSubLabel {
+  margin: 22px 0 8px;
+  color: var(--muted);
+  font-family: var(--fontLabel), sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.duelSubLabel:first-of-type {
+  margin-top: 0;
+}
+
+.duelChips {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.duelChips li {
+  padding: 6px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.84rem;
+  white-space: nowrap;
+}
+
+.duelFeatureWrap {
+  margin-top: 22px;
+}
+
+.duelLocalTight {
+  margin-top: 26px;
+}
+
+.duelLocalTight p {
+  font-size: 0.95rem;
+}
+
+.duelAlsoMarks,
+.comparePairMarks,
+.comparisonCardMarks {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.duelAlsoMarks .productMark,
+.comparePairMarks .productMark,
+.comparisonCardMarks .productMark {
+  flex: none;
+  width: 34px;
+  height: 28px;
+  font-size: 0.7rem;
+}
+
+.duelAlsoMarks .productMarkLogo,
+.comparePairMarks .productMarkLogo,
+.comparisonCardMarks .productMarkLogo {
+  width: 34px;
+  height: 34px;
+  border: 0;
+}
+
+.duelAlsoMarks .productLogoImage,
+.comparePairMarks .productLogoImage,
+.comparisonCardMarks .productLogoImage {
+  width: 32px;
+  height: 32px;
+  object-position: center;
+}
+
+.duelAlsoMeta {
+  color: var(--muted);
+  font-family: var(--fontLabel), sans-serif;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.comparisonCardMarks {
+  margin: 14px 0 4px;
+}
+
 /* ============================================================
    Compare index: every pair, grouped by category
    ============================================================ */
@@ -5356,10 +5566,18 @@ a {
 }
 
 .comparePairList a {
-  padding: 16px 0;
+  padding: 14px 0;
   display: grid;
-  gap: 4px;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
   color: var(--black);
+}
+
+.comparePairText {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
 }
 
 .comparePairNames {

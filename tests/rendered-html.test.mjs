@@ -138,6 +138,53 @@ test("a comparison never prints a number it has not verified", async () => {
   assert.doesNotMatch(priced, /Everyday use[^<]*0\.0/);
 });
 
+test("every comparison carries the full depth, and both product marks", async () => {
+  // One pair from each live category, so a thin page cannot hide in a corner
+  // of the catalogue.
+  const pairs = [
+    "/compare/quickbooks-online-vs-zoho-books",
+    "/compare/sage-hr-vs-simplepay",
+    "/compare/hubspot-crm-vs-pipedrive",
+    "/compare/sage-x3-vs-syspro",
+    "/compare/ikhokha-vs-shopify",
+  ];
+
+  const required = [
+    "What the record adds up to",
+    "What each vendor commits to",
+    "What each one actually does",
+    "Setup, and who answers when it breaks",
+    "Where each one gives ground",
+    "How each one behaves in South Africa",
+    "What we said about each one",
+    "Where these figures come from",
+  ];
+
+  for (const path of pairs) {
+    const response = await render(path);
+    assert.equal(response.status, 200, `${path} does not render`);
+    const html = await response.text();
+    const text = textOf(html);
+
+    for (const heading of required) {
+      assert.ok(text.includes(heading), `${path} is missing the "${heading}" section`);
+    }
+
+    // The capability blocks are the written detail, not a tick grid, so they
+    // have to carry real sentences from each review.
+    const capabilities = [...html.matchAll(/<dt>/g)].length;
+    assert.ok(capabilities >= 6, `${path} lists only ${capabilities} capabilities`);
+
+    // Both products are named by their mark wherever a column or block
+    // belongs to one of them, not by text alone.
+    const marks = [...html.matchAll(/alt="[^"]* logo"/g)].length;
+    assert.ok(marks >= 10, `${path} renders only ${marks} product marks`);
+
+    // A mark must never sit in a tinted box: the logo is the whole graphic.
+    assert.ok(html.includes("productMarkLogo"), `${path} renders no logo marks at all`);
+  }
+});
+
 test("the compare index offers every pair, grouped by category", async () => {
   const response = await render("/compare");
   assert.equal(response.status, 200);

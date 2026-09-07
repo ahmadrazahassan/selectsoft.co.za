@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Breadcrumbs } from "../../components/editorial";
-import { ComparisonBody, ComparisonHead } from "../../components/comparison-table";
+import { Breadcrumbs, ProductMark } from "../../components/editorial";
+import { ComparisonBody, ComparisonHead, ComparisonNav } from "../../components/comparison-table";
 import { PageShell } from "../../components/site-chrome";
 import { siteConfig } from "../../config/site";
 import {
@@ -142,6 +142,8 @@ export default async function ComparisonPage({ params }: { params: Promise<{ slu
 
         <ComparisonHead comparison={comparison} />
 
+        <ComparisonNav comparison={comparison} />
+
         {written && (
           <section className="siteShell duelSection duelEditorial">
             <p className="sectionChip">Editorial verdict</p>
@@ -202,10 +204,14 @@ export default async function ComparisonPage({ params }: { params: Promise<{ slu
             <div className="duelAlsoGrid">
               {alsoCompare.map((pair) => (
                 <Link key={pair.slug} href={`/compare/${pair.slug}`}>
+                  <span className="duelAlsoMarks">
+                    <ProductMark product={pair.a} />
+                    <ProductMark product={pair.b} />
+                  </span>
                   <strong>
                     {pair.a.name} vs {pair.b.name}
                   </strong>
-                  <span>{pair.a.shortCategory}</span>
+                  <span className="duelAlsoMeta">{pair.a.shortCategory}</span>
                 </Link>
               ))}
             </div>

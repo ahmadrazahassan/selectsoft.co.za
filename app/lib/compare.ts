@@ -41,6 +41,21 @@ export type DimensionRow = {
 
 export type FactRow = { label: string; a: string; b: string };
 
+/**
+ * The written parts of a review that belong on a comparison too. A buyer
+ * choosing between two products wants to read what each one actually does,
+ * what it takes to get running and who answers when it breaks, set beside
+ * each other rather than in two separate tabs.
+ */
+export type SideNarrative = {
+  capabilities: { name: string; detail: string }[];
+  features: string[];
+  pricingView: string | null;
+  implementation: string | null;
+  support: string | null;
+  finalView: string | null;
+};
+
 export type PriceView = {
   /** True only when both figures can be set beside each other honestly. */
   comparable: boolean;
@@ -73,6 +88,7 @@ export type GeneratedComparison = {
   price: PriceView;
   trial: { a: string | null; b: string | null };
   demo: { a: string | null; b: string | null };
+  narrative: { a: SideNarrative; b: SideNarrative };
   /** Sentences assembled from the figures above, not written by hand. */
   takeaways: string[];
 };
@@ -176,6 +192,18 @@ function demoLabel(slug: string) {
   return price.demo ? "On request" : "Not advertised";
 }
 
+function narrativeFor(product: Product): SideNarrative {
+  const detail = reviewDetail[product.slug];
+  return {
+    capabilities: detail?.capabilities ?? [],
+    features: product.features ?? [],
+    pricingView: detail?.pricingView ?? null,
+    implementation: detail?.implementation ?? null,
+    support: detail?.support ?? null,
+    finalView: detail?.finalView ?? null,
+  };
+}
+
 function factRows(a: Product, b: Product): FactRow[] {
   return a.facts
     .map((fact) => {
@@ -277,6 +305,7 @@ export function buildComparison(a: Product, b: Product): GeneratedComparison {
     price,
     trial: { a: trialLabel(a.slug), b: trialLabel(b.slug) },
     demo: { a: demoLabel(a.slug), b: demoLabel(b.slug) },
+    narrative: { a: narrativeFor(a), b: narrativeFor(b) },
     takeaways,
   };
 }
