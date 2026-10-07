@@ -208,16 +208,28 @@ test("the affiliate network can still verify that we own the site", async () => 
   // this tag to look like a normal meta tag silently fails re-verification and
   // takes the affiliate programme with it.
   const { siteVerification } = await import("../app/config/site.ts");
-  const token = siteVerification.impact;
-  assert.match(token, /^[0-9a-f-]{36}$/, "the Impact token is not a uuid");
+  const tokens = siteVerification.impact;
+  assert.ok(tokens.length >= 2, "an Impact token has been dropped");
 
   for (const path of ["/", "/compare", "/reviews/xero"]) {
     const html = await (await render(path)).text();
-    const tag = html.match(/<meta[^>]*impact-site-verification[^>]*>/);
-    assert.ok(tag, `${path} carries no Impact verification tag`);
-    assert.ok(tag[0].includes(`value="${token}"`), `${path} does not carry the token in value=`);
-    assert.ok(!tag[0].includes("content="), `${path} rewrote the tag to use content=, which Impact ignores`);
+    const tags = html.match(/<meta[^>]*impact-site-verification[^>]*>/g) ?? [];
+    assert.equal(tags.length, tokens.length, `${path} carries ${tags.length} Impact tags, expected ${tokens.length}`);
+    for (const token of tokens) {
+      assert.match(token, /^[0-9a-f-]{36}$/, "an Impact token is not a uuid");
+      const tag = tags.find((item) => item.includes(token));
+      assert.ok(tag, `${path} does not carry the token ${token}`);
+      assert.ok(tag.includes(`value="${token}"`), `${path} does not carry the token in value=`);
+      assert.ok(!tag.includes("content="), `${path} rewrote a tag to use content=, which Impact ignores`);
+    }
   }
+});
+
+test("the old publisher url redirects instead of 404ing", async () => {
+  const old = await render("/authors/khadija-bibi");
+  assert.ok([301, 308].includes(old.status), `expected a permanent redirect, got ${old.status}`);
+  assert.match(old.headers.get("location") ?? "", /\/authors\/lewis-lauren$/);
+  assert.equal((await render("/authors/lewis-lauren")).status, 200);
 });
 
 test("every product carries a verified price and an outbound link", async () => {
@@ -537,7 +549,7 @@ test("legal pages are finished, not drafts", async () => {
 
   // POPIA needs these to be present and specific.
   assert.match(privacy, /Information Officer/);
-  assert.match(privacy, /Khadija Bibi/);
+  assert.match(privacy, /Lewis Lauren/);
   assert.match(privacy, /Information Regulator/);
   assert.match(privacy, /section 72 of POPIA/);
   assert.match(privacy, /24 months/, "retention must be a stated period, not a vague promise");
@@ -569,7 +581,7 @@ test("the publisher is named, and every byline resolves to a real person", async
   // The imprint appears on every page, because it sits in the footer.
   for (const path of ["/", "/privacy", "/contact", "/reviews/xero"]) {
     const text = textOf(await (await render(path)).text());
-    assert.match(text, /Published by Khadija Bibi, Cape Town, South Africa/, `${path} has no imprint`);
+    assert.match(text, /Published by Lewis Lauren, Cape Town, South Africa/, `${path} has no imprint`);
   }
 });
 
@@ -763,7 +775,7 @@ test("structured data describes the page it sits on", async () => {
   assert.ok(faq, "guide has no FAQPage schema");
   assert.ok(faq.mainEntity.length >= 3);
   const article = guide.find((n) => n["@type"] === "Article");
-  assert.equal(article.author.name, "Khadija Bibi");
+  assert.equal(article.author.name, "Lewis Lauren");
 
   // a quoted product must not advertise a price it does not have
   const quoted = parse(await (await render("/reviews/sage-x3")).text());
@@ -787,7 +799,7 @@ test("the newsletter strip is quiet, and on every page", async () => {
 
     const text = textOf(html);
     assert.match(text, /One useful email a month/);
-    assert.match(text, /Published by Khadija Bibi, Cape Town, South Africa/);
+    assert.match(text, /Published by Lewis Lauren, Cape Town, South Africa/);
     for (const label of ["Navigation", "Legal", "Publication", "Contact"]) {
       assert.match(text, new RegExp(label), `${path} footer is missing ${label}`);
     }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumbs } from "../../components/editorial";
 import { PageShell } from "../../components/site-chrome";
 import { authors, guides } from "../../lib/data";
@@ -22,8 +22,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     : {};
 }
 
+/** The publisher page moved when the publisher name changed. The old URL sat in
+ *  the sitemap and in every byline, so it is redirected for good instead of
+ *  being left to 404. next.config redirects are not applied under vinext. */
+const MOVED: Record<string, string> = { "khadija-bibi": "lewis-lauren" };
+
 export default async function AuthorPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (MOVED[slug]) permanentRedirect(`/authors/${MOVED[slug]}`);
   const author = authors[slug];
   if (!author) notFound();
   const work = guides.filter((guide) => guide.author === author.name);

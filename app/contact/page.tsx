@@ -59,7 +59,7 @@ export default function ContactPage() {
             <div>
               <dt>Editor</dt>
               <dd>
-                <Link href="/authors/khadija-bibi">{publisher.legalName}</Link>
+                <Link href="/authors/lewis-lauren">{publisher.legalName}</Link>
               </dd>
             </div>
             <div>

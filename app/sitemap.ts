@@ -31,7 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/editorial-policy", priority: 0.5, frequency: "yearly" },
     { path: "/affiliate-disclosure", priority: 0.5, frequency: "yearly" },
     { path: "/contact", priority: 0.5, frequency: "yearly" },
-    { path: "/authors/khadija-bibi", priority: 0.6, frequency: "monthly" },
+    { path: "/authors/lewis-lauren", priority: 0.6, frequency: "monthly" },
     { path: "/privacy", priority: 0.3, frequency: "yearly" },
     { path: "/terms", priority: 0.3, frequency: "yearly" },
   ];

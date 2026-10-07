@@ -53,7 +53,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         headline: guide.title,
         description: guide.excerpt,
         datePublished: isoDate(guide.date),
-        author: { "@type": "Person", name: EDITOR.name, url: `${siteConfig.url}/authors/khadija-bibi` },
+        author: { "@type": "Person", name: EDITOR.name, url: `${siteConfig.url}/authors/lewis-lauren` },
         publisher: { "@type": "Organization", name: siteConfig.name, url: siteConfig.url },
         mainEntityOfPage: url,
         articleSection: guide.topic,
@@ -93,7 +93,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           <p className="articleDeck">{guide.excerpt}</p>
           <div className="byline">
             <span>
-              By <Link href="/authors/khadija-bibi">{guide.author}</Link>
+              By <Link href="/authors/lewis-lauren">{guide.author}</Link>
             </span>
             <span>{guide.date}</span>
             <span>{guide.readTime}</span>
@@ -181,7 +181,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
             <p className="eyebrow">About the author</p>
             <h2>{EDITOR.name}</h2>
             <p>{EDITOR.bio}</p>
-            <Link className="plainLink" href="/authors/khadija-bibi">
+            <Link className="plainLink" href="/authors/lewis-lauren">
               View author profile
             </Link>
           </div>

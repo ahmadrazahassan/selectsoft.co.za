@@ -1904,7 +1904,7 @@ export const guides: Guide[] = [
       "A practical way to compare daily bookkeeping, adviser access, reporting, bank connections and the cost that appears after the first month.",
     date: "16 August 2026",
     readTime: "8 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "ledger",
   },
   {
@@ -1915,7 +1915,7 @@ export const guides: Guide[] = [
       "Move beyond the feature list and examine migration, statutory updates, employee records, support and the first live payroll run.",
     date: "13 August 2026",
     readTime: "7 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "people",
   },
   {
@@ -1926,7 +1926,7 @@ export const guides: Guide[] = [
       "Seats are only the beginning. We unpack contact limits, onboarding, automation, support and the cost of keeping clean data.",
     date: "10 August 2026",
     readTime: "6 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "pipeline",
   },
   {
@@ -1937,7 +1937,7 @@ export const guides: Guide[] = [
       "A useful framework for deciding when better accounting is enough and when operations need a connected system.",
     date: "04 August 2026",
     readTime: "9 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "operations",
   },
   {
@@ -1948,7 +1948,7 @@ export const guides: Guide[] = [
       "The questions worth asking about personal information, access, providers, retention and what happens when a contract ends.",
     date: "29 July 2026",
     readTime: "7 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "privacy",
   },
   {
@@ -1959,7 +1959,7 @@ export const guides: Guide[] = [
       "The R1 million threshold, the voluntary route at R50 000, and the software settings that decide whether your VAT201 comes out right.",
     date: "05 September 2026",
     readTime: "9 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "ledger",
   },
   {
@@ -1970,7 +1970,7 @@ export const guides: Guide[] = [
       "Three cloud ledgers at R240, R450 and R322 a month. Where each one genuinely wins, and which local gaps you have to fill yourself.",
     date: "05 September 2026",
     readTime: "11 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "ledger",
   },
   {
@@ -1981,7 +1981,7 @@ export const guides: Guide[] = [
       "A feed that does not cover your account removes most of the reason to pay for cloud accounting. How to test yours before committing.",
     date: "05 September 2026",
     readTime: "8 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "ledger",
   },
   {
@@ -1992,7 +1992,7 @@ export const guides: Guide[] = [
       "What to migrate, what to leave behind, and why your accountant would rather you moved at year end than in the middle of a VAT period.",
     date: "05 September 2026",
     readTime: "9 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "ledger",
   },
   {
@@ -2003,7 +2003,7 @@ export const guides: Guide[] = [
       "Adviser access, a clean trial balance and a working audit trail matter more than any feature on the sales page. Ask before you choose.",
     date: "05 September 2026",
     readTime: "7 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "ledger",
   },
   {
@@ -2014,7 +2014,7 @@ export const guides: Guide[] = [
       "The three deductions every South African employer deals with, what your payroll must calculate, and where small businesses get caught.",
     date: "05 September 2026",
     readTime: "10 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "people",
   },
   {
@@ -2025,7 +2025,7 @@ export const guides: Guide[] = [
       "Monthly declarations and twice yearly reconciliations are where payroll software earns its money. What to check before a filing season.",
     date: "05 September 2026",
     readTime: "9 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "people",
   },
   {
@@ -2036,7 +2036,7 @@ export const guides: Guide[] = [
       "ETI can reduce the PAYE you pay over for younger employees. Claiming it correctly depends almost entirely on your payroll software.",
     date: "05 September 2026",
     readTime: "8 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "people",
   },
   {
@@ -2047,7 +2047,7 @@ export const guides: Guide[] = [
       "Registering with SARS and the UIF, issuing a payslip that complies, and deciding between software and a bureau for one person.",
     date: "05 September 2026",
     readTime: "8 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "people",
   },
   {
@@ -2058,7 +2058,7 @@ export const guides: Guide[] = [
       "If your industry has a council, its contributions and reporting formats are not optional. Very few payroll products handle them natively.",
     date: "05 September 2026",
     readTime: "8 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "people",
   },
   {
@@ -2069,7 +2069,7 @@ export const guides: Guide[] = [
       "The rate on the sales page is rarely the rate you pay. How to work out your blended cost across the machines sold to small merchants here.",
     date: "05 September 2026",
     readTime: "9 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "operations",
   },
   {
@@ -2080,7 +2080,7 @@ export const guides: Guide[] = [
       "Three South African ways to take payment, priced against each other at the turnover levels a small business actually trades at.",
     date: "05 September 2026",
     readTime: "10 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "operations",
   },
   {
@@ -2091,7 +2091,7 @@ export const guides: Guide[] = [
       "Card, instant EFT and QR, what each costs, and why your checkout conversion depends on offering the method your customer already trusts.",
     date: "05 September 2026",
     readTime: "9 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "operations",
   },
   {
@@ -2102,7 +2102,7 @@ export const guides: Guide[] = [
       "Section 72 does not stop you using an overseas provider. It does mean you have to know where your data goes and be able to say so.",
     date: "05 September 2026",
     readTime: "9 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "privacy",
   },
   {
@@ -2113,7 +2113,7 @@ export const guides: Guide[] = [
       "Half the products a South African business buys are priced in dollars. What that does to a budget, and how to plan for it sensibly.",
     date: "05 September 2026",
     readTime: "8 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "operations",
   },
   {
@@ -2124,7 +2124,7 @@ export const guides: Guide[] = [
       "Seats, add ons, implementation, migration, training and the internal time nobody budgets for. A method for costing it before you sign.",
     date: "05 September 2026",
     readTime: "10 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "operations",
   },
   {
@@ -2135,7 +2135,7 @@ export const guides: Guide[] = [
       "Who owns it, what data moves, what runs in parallel and when you stop paying for the old system. The plan most small projects skip.",
     date: "05 September 2026",
     readTime: "9 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "operations",
   },
   {
@@ -2146,7 +2146,7 @@ export const guides: Guide[] = [
       "Most trials are wasted clicking around an empty demo company. Use your own awkward records and you will learn more in a day than a month.",
     date: "05 September 2026",
     readTime: "7 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "operations",
   },
   {
@@ -2157,7 +2157,7 @@ export const guides: Guide[] = [
       "Every failed CRM has the same cause. Adoption is a design question and a management question long before it is a software question.",
     date: "05 September 2026",
     readTime: "8 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "pipeline",
   },
   {
@@ -2168,7 +2168,7 @@ export const guides: Guide[] = [
       "The signs that your stock has outgrown a spreadsheet, and the honest gap between accounting software with stock and a real inventory system.",
     date: "05 September 2026",
     readTime: "9 minute read",
-    author: "Khadija Bibi",
+    author: "Lewis Lauren",
     art: "operations",
   },
 ];
@@ -2307,12 +2307,12 @@ export type Author = {
  * and no qualification is claimed here that cannot be checked.
  * ------------------------------------------------------------------------ */
 export const authors: Record<string, Author> = {
-  "khadija-bibi": {
-    name: "Khadija Bibi",
+  "lewis-lauren": {
+    name: "Lewis Lauren",
     role: "Editor and publisher",
     location: "Cape Town, South Africa",
     bio:
-      "Khadija publishes Select Soft from Cape Town and is responsible for everything that appears on it. The work covers accounting, payroll, CRM, ERP and commerce software, and the ordinary local details that decide whether a product still works six months after it was bought.",
+      "Lewis publishes Select Soft from Cape Town and is responsible for everything that appears on it. The work covers accounting, payroll, CRM, ERP and commerce software, and the ordinary local details that decide whether a product still works six months after it was bought.",
     method:
       "Research here is desk based and it says so. Every price on this site is read off the vendor's own pricing page rather than a search result or a press release, and the date of that check is published next to the figure. Where a review has not involved a structured trial or an interview, it does not claim one. Corrections are welcome and are made in public.",
     expertise: [
@@ -2325,7 +2325,7 @@ export const authors: Record<string, Author> = {
   },
 };
 
-export const EDITOR = authors["khadija-bibi"];
+export const EDITOR = authors["lewis-lauren"];
 
 export function getAuthorByName(name: string) {
   return Object.entries(authors).find(([, author]) => author.name === name);

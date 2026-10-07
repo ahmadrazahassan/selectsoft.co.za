@@ -133,7 +133,7 @@ export default async function ComparisonPage({ params }: { params: Promise<{ slu
           <p className="duelLead">{summary}</p>
           <div className="byline">
             <span>
-              By <Link href="/authors/khadija-bibi">{EDITOR.name}</Link>
+              By <Link href="/authors/lewis-lauren">{EDITOR.name}</Link>
             </span>
             <span>{written ? `Reviewed ${written.reviewed}` : `Prices checked ${PRICING_CHECKED_ON}`}</span>
             <span>No vendor sees this before it is published</span>

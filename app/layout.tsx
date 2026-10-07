@@ -52,7 +52,9 @@ export default function RootLayout({
             tag is written exactly as their console specifies. It sits in the
             root layout rather than the homepage alone, so a re-verification
             against any URL on the site still passes. */}
-        <meta name="impact-site-verification" value={siteVerification.impact} />
+        {siteVerification.impact.map((token) => (
+          <meta key={token} name="impact-site-verification" value={token} />
+        ))}
         {/* next/font emits no CSS under vinext, so the families are linked
             directly and the custom properties are declared in globals.css. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -17,14 +17,14 @@ export const siteConfig = {
  * so they cannot fall out of step with each other.
  * ------------------------------------------------------------------------ */
 export const publisher = {
-  legalName: "Khadija Bibi",
+  legalName: "Lewis Lauren",
   tradingAs: "Select Soft",
   location: "Cape Town, South Africa",
   country: "South Africa",
   /** The general address. Everything else routes to a named purpose below. */
   email: "editor@selectsoft.co.za",
   /** POPIA section 55 requires a named Information Officer. */
-  informationOfficer: "Khadija Bibi",
+  informationOfficer: "Lewis Lauren",
   /** The date the current privacy and terms text took effect. */
   policiesEffective: "3 September 2026",
 } as const;
@@ -96,6 +96,14 @@ export const contactEmail = {
  * place after approval.
  */
 export const siteVerification = {
-  /** Impact, the network Sage runs its affiliate programme on. */
-  impact: "80d5892e-339f-48cf-b88c-783dde2ee3b3",
+  /**
+   * Impact, the network Sage runs its affiliate programme on. Each Impact
+   * account issues its own token, so a site that has been added from more than
+   * one account carries one tag per account. Keep them all: removing one fails
+   * that account's next re-verification.
+   */
+  impact: [
+    "80d5892e-339f-48cf-b88c-783dde2ee3b3",
+    "fee2bdcb-8f8a-493b-97e9-824fa44c44ea",
+  ],
 } as const;

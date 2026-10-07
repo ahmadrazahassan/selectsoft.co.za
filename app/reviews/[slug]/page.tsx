@@ -149,7 +149,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ slug: s
               </span>
             </a>
             <p className="reviewByline">
-              Reviewed {product.reviewed} by <Link href="/authors/khadija-bibi">{EDITOR.name}</Link>. Prices checked {pricedOn(product.slug)}.
+              Reviewed {product.reviewed} by <Link href="/authors/lewis-lauren">{EDITOR.name}</Link>. Prices checked {pricedOn(product.slug)}.
             </p>
           </div>
         </header>
