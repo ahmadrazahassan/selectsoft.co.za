@@ -105,5 +105,6 @@ export const siteVerification = {
   impact: [
     "80d5892e-339f-48cf-b88c-783dde2ee3b3",
     "fee2bdcb-8f8a-493b-97e9-824fa44c44ea",
+    "b80a2f65-77f8-4539-a0a9-1be6c4e203b0",
   ],
 } as const;
