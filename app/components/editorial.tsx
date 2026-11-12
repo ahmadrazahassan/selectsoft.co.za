@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { Category, Guide, Product } from "../lib/data";
 import { categoryCount, getLogo, getPricing, getProduct, type Comparison, type Pricing } from "../lib/data";
+import { vendorLink } from "../lib/affiliate";
 
 const iconMap = {
   calculator: Calculator,
@@ -172,8 +173,7 @@ export function ReviewCard({
         </Link>
         <a
           className="btn btnPrimary btnCompact"
-          href={price?.pricingUrl ?? product.sourceUrl}
-          rel="nofollow sponsored noopener noreferrer"
+          {...vendorLink(product, "card")}
           target="_blank"
         >
           <span>Visit site</span>
@@ -261,8 +261,7 @@ export function TrialCard({ product }: { product: Product }) {
       </p>
       <a
         className="trialCta"
-        href={price.pricingUrl}
-        rel="nofollow sponsored noopener noreferrer"
+        {...vendorLink(product, "trial")}
         target="_blank"
       >
         Start the trial

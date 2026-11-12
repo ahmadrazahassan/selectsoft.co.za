@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ArrowUpRight, Check, Minus } from "lucide-react";
 import { ProductMark } from "./editorial";
 import { getPricing, pricedOn, type Product } from "../lib/data";
+import { isAffiliateProduct, vendorLink } from "../lib/affiliate";
+import { SageBanner } from "./sage-banner";
 import type { GeneratedComparison, SideNarrative } from "../lib/compare";
 
 /* ---------------------------------------------------------------------------
@@ -511,12 +513,17 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
         </section>
       )}
 
+      {isAffiliateProduct(a.slug) || isAffiliateProduct(b.slug) ? (
+        <div className="siteShell">
+          <SageBanner placement={`compare-${isAffiliateProduct(a.slug) ? a.slug : b.slug}`} />
+        </div>
+      ) : null}
+
       <section className="siteShell duelSection duelActions">
         <div className="duelActionRow">
           <a
             className="btn btnPrimary"
-            href={pa?.pricingUrl ?? a.sourceUrl}
-            rel="nofollow sponsored noopener noreferrer"
+            {...vendorLink(a, `compare-${a.slug}`)}
             target="_blank"
           >
             <span>Visit {a.name}</span>
@@ -524,8 +531,7 @@ export function ComparisonBody({ comparison }: { comparison: GeneratedComparison
           </a>
           <a
             className="btn btnPrimary"
-            href={pb?.pricingUrl ?? b.sourceUrl}
-            rel="nofollow sponsored noopener noreferrer"
+            {...vendorLink(b, `compare-${b.slug}`)}
             target="_blank"
           >
             <span>Visit {b.name}</span>

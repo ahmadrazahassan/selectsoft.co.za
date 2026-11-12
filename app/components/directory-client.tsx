@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { getPricing, type Product } from "../lib/data";
+import { vendorLink } from "../lib/affiliate";
 import { PriceBadges, PriceTag, ProductMark } from "./editorial";
 
 export function DirectoryClient({ products }: { products: Product[] }) {
@@ -60,8 +61,7 @@ export function DirectoryClient({ products }: { products: Product[] }) {
                 </Link>
                 <a
                   className="btn btnPrimary btnCompact"
-                  href={getPricing(product.slug)?.pricingUrl ?? product.sourceUrl}
-                  rel="nofollow sponsored noopener noreferrer"
+                  {...vendorLink(product, "directory")}
                   target="_blank"
                 >
                   <span>Visit site</span>

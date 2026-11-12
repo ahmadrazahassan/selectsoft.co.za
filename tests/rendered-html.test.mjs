@@ -914,3 +914,125 @@ test("contact routes are role based, real and consistent", async () => {
     assert.ok(text.includes(contactEmail.commercial), `${path} footer omits the commercial address`);
   }
 });
+
+/* ---------------------------------------------------------------------------
+ * Sage affiliate clicks. These guard the things that silently stop Impact
+ * counting a click: a cacheable redirect, a stripped referrer, a link that
+ * skips our redirect, and a banner that never reports its impression.
+ * ------------------------------------------------------------------------ */
+
+async function go(path, headers = {}) {
+  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${path}`);
+  const { default: worker } = await import(workerUrl.href);
+  return worker.fetch(
+    new Request(`http://localhost${path}`, { headers, redirect: "manual" }),
+    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
+    { waitUntil() {}, passThroughOnException() {} },
+  );
+}
+
+const SAGE_SLUGS = [
+  "sage-accounting",
+  "sage-pastel-accounting",
+  "sage-business-cloud-payroll",
+  "sage-pastel-payroll",
+  "sage-300-people",
+  "sage-hr",
+  "sage-evolution",
+  "sage-intacct",
+  "sage-x3",
+];
+
+test("every Sage product redirects through the partner link with a deep link", async () => {
+  const { getPricing, getProduct } = await import("../app/lib/data.ts");
+  for (const slug of SAGE_SLUGS) {
+    const response = await go(`/go/${slug}?p=review-hero`);
+    assert.equal(response.status, 302, `${slug} must be a 302, a 301 or 308 is cached and loses repeat clicks`);
+    const location = new URL(response.headers.get("location"));
+    assert.equal(location.origin + location.pathname, "https://sagesouthafrica.pxf.io/qWjLvn", `${slug} left the partner link`);
+    const destination = getPricing(slug)?.pricingUrl ?? getProduct(slug).sourceUrl;
+    assert.equal(location.searchParams.get("u"), destination, `${slug} deep links to the wrong page`);
+    assert.equal(location.searchParams.get("subId1"), slug);
+    assert.equal(location.searchParams.get("subId2"), "review-hero");
+    assert.equal(location.searchParams.get("sharedid"), "selectsoft");
+  }
+});
+
+test("the redirect cannot be cached and keeps the referrer Impact needs", async () => {
+  const response = await go("/go/sage-hr");
+  assert.match(response.headers.get("cache-control") ?? "", /no-store/);
+  assert.equal(response.headers.get("referrer-policy"), "origin");
+  assert.match(response.headers.get("x-robots-tag") ?? "", /noindex/);
+});
+
+test("the redirect cannot be turned into an open redirect", async () => {
+  assert.equal((await go("/go/xero")).status, 404, "a product we have no affiliate link for must not redirect");
+  assert.equal((await go("/go/not-a-product")).status, 404);
+  assert.equal((await go("/go/banner/1234567")).status, 404, "an unknown ad id must not redirect");
+  const hostile = await go("/go/sage-hr?p=https://evil.example/");
+  assert.equal(new URL(hostile.headers.get("location")).searchParams.get("subId2"), "site", "a hostile placement must be discarded");
+});
+
+test("crawlers and prefetches do not generate Impact clicks", async () => {
+  const bot = await go("/go/sage-hr", { "user-agent": "Mozilla/5.0 (compatible; Googlebot/2.1)" });
+  assert.equal(bot.status, 302);
+  assert.match(bot.headers.get("location"), /^https:\/\/www\.sage\.com\//, "a bot was sent through the tracking link");
+  const prefetch = await go("/go/sage-hr", { "sec-purpose": "prefetch" });
+  assert.equal(prefetch.status, 204, "a prefetch must not reach Impact");
+  const human = await go("/go/sage-hr", { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130 Safari/537.36" });
+  assert.match(human.headers.get("location"), /^https:\/\/sagesouthafrica\.pxf\.io\/qWjLvn/);
+});
+
+test("banner clicks use the ad's own Impact link", async () => {
+  for (const adId of ["3067396", "3067401"]) {
+    const response = await go(`/go/banner/${adId}?p=review-sage-hr`);
+    assert.equal(response.status, 302);
+    const location = new URL(response.headers.get("location"));
+    assert.equal(location.origin + location.pathname, `https://sagesouthafrica.pxf.io/c/7649214/${adId}/34654`);
+    assert.equal(location.searchParams.get("subId1"), "banner");
+    assert.equal(location.searchParams.get("subId2"), "review-sage-hr");
+    assert.match(response.headers.get("cache-control") ?? "", /no-store/);
+  }
+});
+
+test("Sage pages send every vendor click through our redirect and keep the referrer", async () => {
+  for (const path of ["/reviews/sage-accounting", "/reviews/sage-hr", "/compare/sage-accounting-vs-xero", "/software"]) {
+    const html = await (await render(path)).text();
+    assert.ok(!/href="https:\/\/(www\.sage\.com|sagesouthafrica\.pxf\.io)[^"]*"[^>]*sponsored/.test(html), `${path} links straight to Sage, bypassing /go`);
+    assert.ok(!/href="\/go\/[^"]*"[^>]*noreferrer/.test(html), `${path} strips the referrer on a /go link`);
+    assert.ok(/href="\/go\/sage-[a-z0-9-]+\?p=[a-z0-9-]+"/.test(html), `${path} has no /go link to a Sage product`);
+  }
+  const xero = await (await render("/reviews/xero")).text();
+  assert.ok(!xero.includes("/go/xero"), "a vendor without an affiliate link was routed through /go");
+  assert.match(
+    xero,
+    /href="https:\/\/www\.xero\.com\/za\/[^"]*"[^>]*rel="nofollow sponsored noopener noreferrer"/,
+    "the Xero link should be left as it was",
+  );
+});
+
+test("Sage banners are labelled, sized, tracked and only on Sage pages", async () => {
+  for (const path of ["/reviews/sage-accounting", "/compare/sage-accounting-vs-xero"]) {
+    const html = await (await render(path)).text();
+    assert.match(html, /aria-label="Advertisement"/, `${path} has an unlabelled ad`);
+    for (const [adId, width, height] of [["3067396", 728, 90], ["3067401", 300, 250]]) {
+      assert.ok(html.includes(`https://a.impactradius-go.com/display-ad/34654-${adId}`), `${path} is missing creative ${adId}`);
+      assert.ok(html.includes(`https://sagesouthafrica.pxf.io/i/7649214/${adId}/34654`), `${path} is missing the impression pixel for ${adId}`);
+      assert.ok(html.includes(`/go/banner/${adId}?p=`), `${path} banner ${adId} does not click through /go`);
+      assert.match(html, new RegExp(`display-ad/34654-${adId}"[^>]*width="${width}"[^>]*height="${height}"`), `${path} creative ${adId} has the wrong size`);
+    }
+    for (const tag of html.match(/<img[^>]*(?:impactradius-go|pxf\.io\/i\/)[^>]*>/g) ?? []) {
+      assert.match(tag, /loading="lazy"/, "an ad image is not lazy, so the hidden size would be counted as an impression too");
+    }
+  }
+  for (const path of ["/reviews/xero", "/compare/xero-vs-quickbooks-online", "/"]) {
+    const html = await (await render(path)).text();
+    assert.ok(!html.includes("impactradius-go.com"), `${path} carries a Sage ad but is not about Sage`);
+  }
+});
+
+test("crawlers are told to stay out of the redirects", async () => {
+  const response = await render("/robots.txt");
+  assert.match(await response.text(), /Disallow: \/go\//);
+});

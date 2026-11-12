@@ -4210,6 +4210,83 @@ a {
   border-color: var(--black);
 }
 
+/* Advertisement, one labelled slot -------------------------------- */
+
+.adSlot {
+  container-type: inline-size;
+  margin: 0 auto clamp(44px, 5vw, 72px);
+  text-align: center;
+}
+
+.adLabel,
+.adNote {
+  display: block;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.adLabel {
+  margin-bottom: 10px;
+  font-family: var(--fontLabel), sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.adNote {
+  margin-top: 10px;
+}
+
+.adNote a {
+  border-bottom: 1px solid var(--hairlineStrong);
+}
+
+.adNote a:hover {
+  color: var(--black);
+  border-color: var(--black);
+}
+
+.adFrame {
+  position: relative;
+  display: none;
+  margin-inline: auto;
+  line-height: 0;
+}
+
+.adFrame a {
+  display: inline-block;
+  line-height: 0;
+}
+
+.adFrame img:not(.adPixel) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.adNarrow {
+  display: block;
+  width: 300px;
+  max-width: 100%;
+}
+
+.adPixel {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@container (min-width: 740px) {
+  .adWide { display: block; width: 728px; }
+  .adNarrow { display: none; }
+}
+
 /* Questions --------------------------------------------------- */
 
 .faqList {

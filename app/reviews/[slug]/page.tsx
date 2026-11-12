@@ -27,6 +27,8 @@ import {
 } from "../../components/review-charts";
 import { CostCurve, PriceRanking } from "../../components/cost-charts";
 import { PageShell } from "../../components/site-chrome";
+import { SageBanner } from "../../components/sage-banner";
+import { isAffiliateProduct, vendorLink } from "../../lib/affiliate";
 import { EDITOR, getPricing, getProduct, isoDate, pricedOn, products } from "../../lib/data";
 import { hasRatings } from "../../lib/ratings";
 import { siteConfig } from "../../config/site";
@@ -139,8 +141,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ slug: s
             </div>
             <a
               className="btn btnPrimary btnLarge"
-              href={price?.pricingUrl ?? product.sourceUrl}
-              rel="nofollow sponsored noopener noreferrer"
+              {...vendorLink(product, "review-hero")}
               target="_blank"
             >
               <span>Visit {product.name}</span>
@@ -236,8 +237,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ slug: s
                           </p>
                           <a
                             className={lead ? "btn btnPrimary planCta" : "btn btnSecondary planCta"}
-                            href={price.pricingUrl}
-                            rel="nofollow sponsored noopener noreferrer"
+                            {...vendorLink(product, "review-plan")}
                             target="_blank"
                           >
                             Get {plan.name}
@@ -294,8 +294,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ slug: s
                 <div className="buyPanelAction">
                   <a
                     className="btn btnPrimary"
-                    href={price?.pricingUrl ?? product.sourceUrl}
-                    rel="nofollow sponsored noopener noreferrer"
+                    {...vendorLink(product, "review-buy-panel")}
                     target="_blank"
                   >
                     <span>Visit {product.name}</span>
@@ -309,6 +308,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ slug: s
                 </div>
               </aside>
             </section>
+            {isAffiliateProduct(product.slug) ? <SageBanner placement={`review-${product.slug}`} /> : null}
             <section id="local" className="localReviewNote">
               <p className="sectionChip"><MapPin size={15} strokeWidth={2} aria-hidden="true" />Local view</p>
               <h2>What changes in South Africa</h2>
